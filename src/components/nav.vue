@@ -106,8 +106,6 @@
         }).catch(err => {
 
         })
-
-
         localStorage.removeItem('Authorization')
       },
       fn(){
