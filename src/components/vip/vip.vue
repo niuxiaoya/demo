@@ -3,11 +3,10 @@
       <Top></Top>
       <Navs :num="3"></Navs>
       <div class="mian" v-loading="loading" element-loading-text="加载中" >
-          <div class="content" v-show="vipInfo.length > 0" style="min-height: 584px;">
+          <div class="content" v-show="vipInfo.length > 0" style="min-height: 400px;">
           <dl  v-for="item,index in vipInfo" :key="index">
             <dt @click="info(index)">
               <img :src="item.icon_pic" alt="">
-              <!--<img :src="require(`../../assets/img/vip/0${index+1}.png`)" alt="">-->
             </dt>
             <dd>
               <div class="detail">
@@ -24,10 +23,7 @@
       <Foot></Foot>
   </div>
 </template>
-<script>
- import Top from '@/components/top'
- import Navs from '@/components/nav'
- import Foot from '@/components/foot'
+<script type="javascript">
   export default {
    data(){
      return{
@@ -37,13 +33,13 @@
    },
    methods:{
      info(resut){
-      console.log(resut)
        this.$router.push({
            path:'/vip/detail',
        })
      },
    },
     mounted(){
+      document.title= '瑞时会-会籍'
     let self=this;
        /**
         * vip列表
@@ -54,23 +50,12 @@
            let str;
            let str1;
            let arr=[];
-//           for(let i=0;i<this.vipInfo.length;i++){
-//             str=this.vipInfo[i].name.split(" ")
-//             str1=str[0]+str[1];
-//             arr[i]=[str1,str]
-//             this.vipInfo[i].name=arr[i];
-//           }
            self.vipInfo = res.data.data.data
            self.loading = false
          }
        }).catch(err=>{
          self.loading = false
        })
-    },
-    components: {
-      Top,  //头部
-      Navs, //导航
-      Foot  //公共底部
     },
   }
 </script>
@@ -84,7 +69,7 @@
       box-sizing: border-box;
       margin: 0 auto;
       background: #fff;
-      min-height:800px;
+      min-height:532px;
       overflow-y: auto;
       .content{
         min-height:500px;
@@ -117,6 +102,7 @@
               p{
                 font-size: 32px;
                 padding-top: 30px;
+                text-align: center;
 
               }
             }
@@ -156,16 +142,23 @@
               }
             }
             .es{
-              height: 20px;
+              height: 30px;
               overflow: hidden;
               text-overflow: ellipsis;
               display: -webkit-box;
               -webkit-line-clamp: 1;
               -webkit-box-orient: vertical;
+              text-align: center;
             }
           }
         }
       }
     }
+  }
+</style>
+
+<style type="text/less" lang="less">
+  .es #my-frame-text {
+    text-align: center;
   }
 </style>

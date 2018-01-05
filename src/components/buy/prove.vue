@@ -82,9 +82,6 @@
   </div>
 </template>
 <script type="javascript">
-  import Top from '@/components/top'
-  import Navs from '@/components/nav'
-  import Foot from '@/components/foot'
   export default {
     data(){
       return {
@@ -179,7 +176,7 @@
               type: 'success',//success
               message: "提交成功"
             });
-            self.$router.push(`/buy`)
+            self.$router.push(`/login/myBuy?id=2`)
           }).catch(err=>{
             this.$message.error("提交失败");
           })
@@ -205,6 +202,7 @@
       },
     },
     mounted() {
+      document.title= '瑞时会-直买'
         window.scrollTo(0,0)
         let self=this;
       /**
@@ -225,11 +223,6 @@
       })
 
 
-    },
-    components: {
-      Top,  //头部
-      Navs, //导航
-      Foot  //公共底部
     },
   }
 </script>

@@ -27,9 +27,6 @@
   </div>
 </template>
 <script>
-  import Top from '@/components/top'
-  import Navs from '@/components/nav'
-  import Foot from '@/components/foot'
   export default {
     data(){
       return {
@@ -38,6 +35,7 @@
       }
     },
     mounted() {
+      document.title= '瑞时会-资讯'
       window.scrollTo(0,0)
         let self=this;
 //
@@ -56,11 +54,6 @@
 
         })
 
-    },
-    components: {
-      Top,  //头部
-      Navs, //导航
-      Foot  //公共底部
     },
   }
 </script>

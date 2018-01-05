@@ -1,8 +1,9 @@
+<script src="../../../../jingdongTest/src/main.js"></script>
 <template>
   <div class="Buy">
     <Top></Top>
     <Navs :num="1"></Navs>
-    <div class="mian">
+    <div class="mian" >
       <div class="mins">
         <ul class="nav">
           <li @click="navNum = (navNum != 1)?1:0" :class="{'navActive':navNum==1}">
@@ -30,7 +31,7 @@
             <img src="../../assets/img/buy/xjt.png" v-if="navNum!=5">
             <img src="../../assets/img/buy/close.png" v-if="navNum==5">
           </li>
-          <li @click="navNum = (navNum != 6)?6:0;tab6(1);" :class="{'navActive':navNum==6}">
+          <li @click="navNum = (navNum != 6)?6:0;" :class="{'navActive':navNum==6}">
             更多
             <img src="../../assets/img/buy/xjt.png" v-if="navNum!=6">
             <img src="../../assets/img/buy/close.png" v-if="navNum==6">
@@ -111,7 +112,6 @@
                       <el-radio v-for="el,k in item.data" :key="k" :label="el.id">{{ el.name }}</el-radio>
                     </el-radio-group>
                   </div>
-
               </li>
             </ul>
           </div>
@@ -156,9 +156,10 @@
         <li v-show="value6" @click="clear(7,value6)">{{value6.name}}<i><img src="../../assets/img/buy/close.png"></i></li>
         <li v-show="values.length>0" @click="clears(7,value6)">{{values}}<i><img src="../../assets/img/buy/close.png"></i></li>
       </ul>
+      <div v-show="content.length<=0&&loading" v-loading="loading" element-loading-text="加载中" style="height: 227px;"></div>
       <div class="content">
         <ul>
-           <li v-for="item in content" @click="openDetail(item)">
+           <li v-for="item,i in content" @click="openDetail(item)" :key="i">
             <dl>
               <dt>
               <img :src="item.cover_pic">
@@ -166,7 +167,7 @@
               </dt>
               <dd>
                 <p>{{item.title}}</p>
-                <p>{{item.cont}}</p>
+                <p>{{item.details}}</p>
                 <p>{{item.price}}</p>
                 <p>
                 <span>{{item.city_name}}</span>
@@ -177,23 +178,24 @@
           </li>
         </ul>
       </div>
-      <div class="page"  v-show="isShow">
+      <div class="page"  v-show="pagecount && pagecount > 1 && !loading">
         <!--<span class="item" @click="handlerPage(1)">首页</span>-->
         <el-pagination layout="prev,pager,next" :page-count="pagecount" @current-change="handlerPage"></el-pagination>
         <!--<span class="item" @click="handlerPage(pagecount)">尾页</span>-->
         <span class="item">页数  <i>{{ p }}</i> / <i>{{pagecount}}</i></span>
       </div>
+
+      <no-more v-if="content.length <= 0 && !loading"></no-more>
+      <!--<NoneDatas v-show="content.length <= 0 && !loading"></NoneDatas>-->
     </div>
     <Foot></Foot>
   </div>
 </template>
 <script type="javascript">
-  import Top from '@/components/top'
-  import Navs from '@/components/nav'
-  import Foot from '@/components/foot'
   export default {
     data(){
       return {
+        loading: true,
         function_name:'',
         navNum:"",
         isSel:false,
@@ -204,7 +206,6 @@
         isSel4:false,
         show2:false,
         show3: false,
-        isShow:false,
         radio1:1,
         macket:[],//所有
         brand:[],// 品牌
@@ -281,6 +282,7 @@
         if(val > 0 && val <= this.pagecount) {
           this.getList(val)
           this.p = val
+          this.content=[]
         }
         window.scrollTo(0,0)
       },
@@ -291,26 +293,21 @@
        * */
       getList(p) {
         let self=this
+        self.loading=true
         this.$http.get(`${process.env.API.MARKET}/market/buyer/goodsList`,{params:{price_l:self.moeny1*10000 ||0,price_h:self.moeny2*10000 || -1,p:p,rows:30,title:self.keyword,brand_id:self.value1.pid,fineness_id: self.value2.pid,gender: self.value4.pid,order:self.value6.id ||'create_time',function_id:self.function.function_id,movement_id:self.function.movement_id,exchange_status:self.function.exchange_status,shape_id:self.function.shape_id,diameter_l:self.function.diameter_l,diameter_h:self.function.diameter_h,material_id: self.value5.pid}}).then(res=>{
           this.pagecount = res.data.page.total_pages  //  总共多少页
           this.content = res.data.data
-          this.isShow = true
+          self.loading=false
         }).catch(() => {
           this.content = []
           this.p = 1
           this.currentPage1 = 1
+          this.pagecount=0
+          self.loading=false
         })
-//          params: {
-//            fineness_id: self.value2.pid,  //成色
-//            gender: self.value4.pid,   //性别
-////            material_id: self.value5.pid,   //表壳材质
-////            exchange_status: self.moreList[0].model,  //售卖状态
-////            movement_id: self.moreList[1].model,  //机芯
-////            shape_id:self.moreList[1].model, //形状
-//          }
       },
       clear(index,k){
-        this.getList(1)
+        this.content=[]
         switch (index){
           case 1:
             this.value1=""
@@ -346,23 +343,15 @@
         }
       },
       clears(item,key){
-         this.values=""
+        this.values=""
         this.function.function_id=[]
         this.function.movement_id=""
         this.function.exchange_status=""
         this.function.shape_id=""
         this.function.diameter_h=""
         this.function.diameter_l=""
-//            console.log(this.values)
-
         this.getList(1)
-//        for(let i=0;i<this.values.length;i++){
-//
-//          return this.values.splice(i,1)
-//        }
-
-
-        this.getList(1)
+        this.content=[]
       },
       tab1(index) {
         switch (index){
@@ -372,6 +361,7 @@
             break;
         }
         this.getList(1)
+        this.content = []
       },
       tab2(index) {
         switch (index){
@@ -381,15 +371,17 @@
             break;
         }
         this.getList(1)
+        this.content = []
       },
       tab3(index){
         switch (index){
           case 1:
             this.moeny1=""
             this.moeny2=""
+            this.red=false
             break;
           case 2:
-            if(this.moeny1<0 || this.money2<0){
+            if(this.moeny1<=0 || this.money2<=0){
               this.red=true
               return false
             }
@@ -406,10 +398,12 @@
               this.value3=this.moeny1+"万以上"
             }
             if(this.moeny2==this.moeny1){
-              this.value3=this.moeny1+"万以上"
+              this.value3=this.moeny1+"万"
             }
             this.getList(1)
+            this.content = []
             this.navNum=""
+            this.red=false
             break;
         }
       },
@@ -421,6 +415,7 @@
             break;
         }
         this.getList(1)
+        this.content = []
       },
       tab5(index) {
         switch (index){
@@ -430,14 +425,14 @@
             break;
         }
         this.getList(1)
+        this.content = []
       },
       tab6(index) {
         let listValue=[];
         this.values="";
+        console.log(this.pagecount)
         switch (index){
           case 1:
-//            this.value4=index;
-//            this.navNum=""
             for(let i=0;i<this.moreList.length;i++){
               this.moreList[i].model=this.moreList[i].type === 'checkbox' ? [] : ''
             }
@@ -476,7 +471,6 @@
                       this.function.exchange_status = data[i].id
                     }
                   }
-//                  this.function.exchange_status = model
                   break;
                 case 1:
                   for(let a=0;a<data.length;a++){
@@ -504,6 +498,7 @@
             break;
         }
         this.getList(1)
+        this.content = []
       },
       tab7(index) {
         switch (index){
@@ -513,11 +508,13 @@
             break;
         }
         this.getList(1)
+        this.content = []
       },
       /**
        * 关键词搜索
        * */
       search () {
+        this.content = []
         this.getList(1)
       },
       /**
@@ -539,10 +536,12 @@
       },
     },
     created(){
+
     },
     mounted() {
       window.scrollTo(0,0)
       let self = this
+      document.title= '瑞时会-直买'
 
       let title = ['售卖状态', '机芯类型', '表盘形状', '表盘直径', '复杂功能']
       for (let i = 0; i < 5; i++) {
@@ -585,29 +584,16 @@
             }] : [],
         })
       }
-
-
       this.getList(1)
-
-      setTimeout(() => {
-        let self = this;
-        //        全部请求
-//        self.$http.get(`${process.env.API.MARKET}/market/buyer/goodsList`).then(res=>{
-//        //                                        ${process.env.API.MARKET}/market/buyer/goodsList
-//          self.content = res.data.data
-//          console.log(res.data.data)
-//        }).catch(err=>{
-//          console.log(err)
-//        })
-        // 成色
-        self.$http.get(`${process.env.API.DICT}/dict/fineness`).then(res => {
+      // 成色
+      self.$http.get(`${process.env.API.DICT}/dict/fineness`).then(res => {
         //          console.log(res.data.data)
           self.fineness = res.data.data
         }).catch(err => {
           console.log(err)
         })
-        // 品牌
-        self.$http.get(`${process.env.API.DICT}/dict/brand?is_pc=1`).then(res=>{
+      // 品牌
+      self.$http.get(`${process.env.API.DICT}/dict/brand`).then(res=>{
           self.brand = res.data.data
           let arr = []
           for (let value in self.brand) {
@@ -622,24 +608,18 @@
           console.log(err)
         })
       //表壳材质
-        self.$http.get(`${process.env.API.DICT}/dict/material`).then(res=>{
+      self.$http.get(`${process.env.API.DICT}/dict/material`).then(res=>{
           self.material = res.data.data
         }).catch(err=>{
           console.log(err)
         })
 
-        //      复杂功能
-        self.$http.get(`${process.env.API.DICT}/dict/function`).then(res=>{
+      //复杂功能
+      self.$http.get(`${process.env.API.DICT}/dict/function`).then(res=>{
           self.functionss = res.data.data
         }).catch(err=>{
-          console.log(err)
-        })
-      }, 500)
-    },
-    components: {
-      Top,  //头部
-      Navs, //导航
-      Foot  //公共底部
+        console.log(err)
+      })
     },
     watch: {
       navNum (val) {
@@ -677,13 +657,6 @@
             url: `${process.env.API.DICT}/dict/shape`
           })
           /**
-           * 表盘直径
-           */
-          // getData({
-          //   list: that.moreList[3],
-          //   url: `http://apidev.swisstimevip.com:8000/dict/v1/dict/brand?is_pc=1`
-          // })
-          /**
            * 复杂功能
            */
           getData({
@@ -706,7 +679,6 @@
       min-height: 500px;
       padding: 40px 10px 60px;
       margin: 0 auto;
-      box-sizing: border-box;
       .nav{
         text-align: center;
         border: 1px solid #ccc;
@@ -715,7 +687,6 @@
         margin-bottom: 20px;
         position: relative;
         li{
-          /*border-right: 1px solid #ccc;*/
           cursor: pointer;
           flex: 1;
           height: 45px;
@@ -743,13 +714,6 @@
               height: 0;
             }
           }
-          /*&:last-child{*/
-            /*border-right: 1px solid #ccc;*/
-          /*}*/
-          /*&:hover{*/
-            /*background: #333;*/
-            /*color: #fff;*/
-          /*}*/
         }
         .navActive{
           background: #333;
@@ -790,14 +754,6 @@
                 padding-left: 20px;
                 border-bottom: 1px solid #e6e6e6;
                 line-height: 50px;
-                &:first-child{
-                  /*border-bottom: 1px solid #ccc;*/
-                  /*color: #333;*/
-                  /*font-weight: bold;*/
-                  /*&:hover{*/
-                    /*background: none;*/
-                  /*}*/
-                }
                 &:hover{
                   background: #fafafa;
                   font-weight: bold;
@@ -1072,7 +1028,7 @@
       }
       .content{
         padding-bottom: 40px;
-        border-bottom: 2px solid #e9e9e9;
+        /*border-bottom: 1px solid #e9e9e9;*/
         ul{
           display: flex;
           flex-wrap: wrap;
@@ -1120,14 +1076,18 @@
                   color: #333;
                   padding-top: 10px;
                   font-size: 14px;
-                  &:nth-child(1){
+                  &:nth-child(1), &:nth-child(2){
                     font-weight: bold;
-                    height: 40px;
+                    height: 16px;
                     overflow: hidden;
                     text-overflow: ellipsis;
                     display: -webkit-box;
                     -webkit-line-clamp: 2;
                     -webkit-box-orient: vertical;
+                  }
+                  &:nth-child(2){
+                    height: 20px;
+                    font-weight: normal;
                   }
                   &:nth-child(3){
                     font-size: 18px;
@@ -1151,43 +1111,12 @@
         border-bottom: 1px solid #e9e9e9;
         padding: 20px 0;
         justify-content: flex-end;
-
       }
     }
   }
 </style>
 <style type="text/less" lang="less">
   .Buy{
-    .page{
-      .item{
-        font-size: 16px;
-        color: #666;
-        height: 16px;
-        line-height: 30px;
-        cursor: pointer;
-        i{
-          font-style: normal;
-        }
-      }
-      .el-pagination{
-        .btn-prev,.btn-next{
-          border: none!important;
-        }
-        .el-pager{
-          background: none;
-          .number,.btn-quicknext,.btn-quickprev{
-            border: none;
-            font-size: 16px;
-            color: #666;
-          }
-          .active{
-            color: #333;
-            background: none;
-            border: 1px solid #333;
-          }
-        }
-      }
-    }
     .el-radio-group{
       width: 100%;
     }
@@ -1216,6 +1145,9 @@
         }
       }
     }
-  }
 
+    .number{
+      background: none;
+    }
+  }
 </style>

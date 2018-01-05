@@ -13,7 +13,8 @@
           <span :class="{'imgShow':isSel}" class="ssel">
             <img class="icon-caret" src="../assets/img/select.png">
           </span>
-          <div v-if="isSel">
+          <div class="isShow" :class="{'isShowLogin':isSel}">
+            <!--v-if="isSel"-->
             <p @click="$router.push('/login/people')">
               <img :src="userInfo.avatar_pic"  v-if="userInfo.avatar_pic">
               <img src="../assets/img/login/photo1.png" v-if="!userInfo.avatar_pic">
@@ -66,26 +67,32 @@
         switch (item.name){
           case '首页':
             this.$router.push('/')
-            document.title= '瑞时会-只珍藏顶级腕表和你'
             break;
           case '直买':
             this.$router.push('/buy')
-            document.title= '瑞时会-直买'
             break;
           case '直售':
+            if(!localStorage.getItem('Authorization')){
+              this.$confirm('请登录后再进行操作！', '提示', {
+                confirmButtonText: '确定',
+                cancelButtonText: '取消',
+                type: 'warning'
+              }).then(() => {
+                this.$router.push(`/login`)
+              }).catch(() => {
+              });
+              return false
+            }
             this.$router.push('/wealthmanag')
             break;
           case '会籍':
             this.$router.push('/vip')
-            document.title= '瑞时会-会籍'
             break;
           case '资讯':
            this.$router.push('/information')
-            document.title= '瑞时会-资讯'
             break;
           case '关于我们':
            this.$router.push('/about')
-            document.title= '瑞时会-关于我们'
             break;
         }
       },
@@ -174,11 +181,22 @@
               width: auto;
               height: auto;
               border-radius: 0;
+              object-fit: cover
             }
           }
+          /*.isShowLogin{*/
+            /*opacity: 0;*/
+          /*}*/
         }
         .info{
           position: relative;
+          .isShow{
+            opacity: 0;
+            transition: all .4s;
+          }
+          .isShowLogin{
+            opacity: 1;
+          }
           .icon-caret {
             width:14px;
             height:8px;
@@ -189,6 +207,7 @@
             width: 25px;
             height: 25px;
             border-radius: 50%;
+            object-fit: cover;
           }
           span{
             transition: all .4s;

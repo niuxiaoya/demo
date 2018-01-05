@@ -3,7 +3,7 @@
     <Top></Top>
     <!-- :num="0" -->
     <Navs ></Navs>
-    <div class="mian">
+    <div class="mainBox">
       <div class="left">
         <navList :nums="1"></navList>
       </div>
@@ -20,9 +20,10 @@
               <span>小计</span>
               <span>操作</span>
             </li>
+            <li v-show="dataList.length<=0&&loading" v-loading="loading" element-loading-text="加载中" style="height: 227px;"></li>
             <li v-for="(item,index) in dataList" :class="{'isHeight':item.exchange_stage_name=='审核失败'}" @click="detailClick(item)">
             <span>
-              <img :src="item.file_pic">
+              <img :src="item.cover_pic">
               <div>
                   <p>{{item.title}}</p>
                   <p>{{item.details || " "}}</p>
@@ -51,10 +52,7 @@
             <el-pagination layout="prev,pager,next" :page-count="pagecount" @current-change="handlerPage" :current-page="currentPage"></el-pagination>
             <span class="item">共   <span>{{pagecount}}</span>页</span>
           </div>
-          <div class="nones" v-if="!dataList">
-            <img src="../../assets/img/icon.png">
-            暂无数据...
-          </div>
+          <no-more v-if="dataList.length <= 0&& !loading"></no-more>
         </div>
       </div>
     </div>
@@ -62,19 +60,16 @@
   </div>
 </template>
 <script type="javascript">
-  import Top from '@/components/top'
-  import Navs from '@/components/nav'
-  import navList from '@/components/navList'
-  import Foot from '@/components/foot'
   export default {
     data(){
       return {
-        dataList:"",
+        dataList:[],
         isHeight:true,
         isShow:false,
         pagecount:1,
         currentPage:1,
         p:1,
+        loading:true
       }
     },
     methods:{
@@ -86,7 +81,6 @@
         if(val > 0 && val <= this.pagecount) {
           this.info(val)
           this.p = val
-          console.log(val)
           window.scrollTo(0,0)
         }
       },
@@ -94,6 +88,7 @@
         let self=this;
         self.dataList='';
         this.isShow=false
+        self.loading=true
         self.$http.get(`${process.env.API.MARKET}/market/seller/mylist`,{
           params:{
             rows:10,
@@ -109,16 +104,18 @@
             this.isShow=true
             this.p=res.data.page.p
             this.pagecount = parseInt(res.data.page.total_pages)  //  总共多少页
+            self.loading=false
           }
         }).catch(()=>{
           this.p = 1
           this.isShow=false
+          self.dataList=[]
+          self.loading=false
         })
 
       },
       delet(item,index){
         let self =this;
-        console.log(item)
         self.$http.delete(`${process.env.API.MARKET}/market/seller/mylist`,{
           params:{
             gid:item.gid
@@ -129,7 +126,8 @@
               message: '删除成功',
               type: 'success'
             });
-            self.dataList.splice(index, 1)
+            this.info(1)
+//            self.dataList.splice(index, 1)
           }
         }).catch(err=>{
           this.$message.error("删除失败");
@@ -143,40 +141,16 @@
       },
     },
     mounted() {
+      window.scrollTo(0,0)
+      document.title= '瑞时会-我的发布'
       this.info(1)
-    },
-    components: {
-      Top,  //头部
-      Navs, //导航
-      navList,
-      Foot  //公共底部
     },
   }
 </script>
 <style lang="less" scoped type="text/less">
   .People{
-    .mian{
-      box-sizing:border-box;
-      max-width: 1200px;
-      min-width: 1000px;
-      padding: 0 10px;
-      margin: 0 auto;
-      box-sizing: border-box;
-      background: #fff;
-      min-height: 690px;
-      display: flex;
-      .left{
-        width: 200px;
-        padding-top: 55px;
-        border-right: 1px solid #f5f5f5;
-      }
+    .mainBox{
       .right{
-        padding: 60px;
-        box-sizing:border-box;
-        .title{
-          color: #333;
-          font-size: 24px;
-        }
         .shop{
           padding: 30px 0px 60px;
           box-sizing: border-box;
@@ -260,6 +234,16 @@
                     &:first-child{
                       font-weight: bold;
                     }
+                    &:last-child{
+                      color: #333;
+                      overflow : hidden;
+                      text-overflow: ellipsis;
+                      display: -webkit-box;
+                      -webkit-line-clamp: 2;
+                      -webkit-box-orient: vertical;
+                      height: 48px;
+                      word-break:break-all
+                    }
                   }
                 }
                 img{
@@ -291,6 +275,10 @@
               padding-bottom: 65px;
             }
           }
+          .page{
+            display: flex;
+            justify-content: flex-end;
+          }
           .nones{
             display: flex;
             flex-direction: column;
@@ -298,72 +286,6 @@
             color: #333;
             font-size: 14px;
           }
-        }
-      }
-    }
-  }
-</style>
-<style type="text/less" lang="less">
-  .People{
-    .page{
-      display: flex;
-      justify-content: flex-end;
-      padding: 20px 0;
-      border-bottom: 1px solid #e6e6e6;
-      .item{
-        font-size: 16px;
-        color: #666;
-        height: 16px;
-        line-height: 30px;
-        cursor: pointer;
-        i{
-          font-style: normal;
-        }
-      }
-      .el-pagination{
-        .btn-prev,.btn-next{
-          border: none!important;
-        }
-        .el-pager{
-          background: none;
-          .number,.btn-quicknext,.btn-quickprev{
-            border: none;
-            font-size: 16px;
-            color: #666;
-          }
-          .active{
-            color: #333;
-            background: none;
-            border: 1px solid #333;
-          }
-        }
-      }
-    }
-    .el-radio-group{
-      width: 100%;
-    }
-    .el-radio{
-      width: 48%;
-      padding-bottom: 18px;
-      margin-left: 0;
-      .is-checked{
-        .el-radio__inner{
-          background: none;
-          border: 1px solid #000;
-          &:after{
-            background: #000!important;
-          }
-        }
-      }
-    }
-    .el-checkbox{
-      width: 49%;
-      margin-left: 0;
-      padding-bottom: 18px;
-      .el-checkbox__inner{
-        background: #fff;
-        &:after{
-          border-color: #333;
         }
       }
     }

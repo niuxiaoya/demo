@@ -60,9 +60,6 @@
   </div>
 </template>
 <script type="javascript">
-  import Top from '@/components/top'
-  import Navs from '@/components/nav'
-  import Foot from '@/components/foot'
   export default {
     data(){
       return {
@@ -135,14 +132,6 @@
           receiver_tel: self.infoList.tel
         }).then(res => {
           if(res.data.errcode=='0'){
-//            self.dataInfo.push({
-//              address: "dfdagdsgreagreh",
-//              city_code: "110100",
-//              dist_code: "110101",
-//              prov_code: "110000",
-//              receiver: "test",
-//              receiver_tel: "13599998888"
-//            })
             this.$message({
               type: 'success',//success
               message: "提交成功"
@@ -180,26 +169,18 @@
       }
     },
     mounted() {
+      document.title= '瑞时会-直买'
       let self=this;
       self.$http.get(`${process.env.API.DICT}/dict/area`,{params:{
          kind:'all',
          nonce:0.9064637705159901
         }}).then(res=>{
           if(res.data.length!=0) {
-//            res.data.manage.file_pic=res.data.manage.file_pic.split(",")
-//            this.dataList=res.data.manage
             self.infoCity=res.data
-
           }
         }).catch(() => {
 
         })
-
-    },
-    components: {
-      Top,  //头部
-      Navs, //导航
-      Foot  //公共底部
     },
   }
 </script>
@@ -211,7 +192,6 @@
       min-width: 1000px;
       padding: 60px 10px 95px;
       margin: 0 auto;
-      box-sizing: border-box;
       background: #fff;
       .title{
         font-size: 24px;
@@ -252,7 +232,6 @@
             box-sizing: border-box;
             border:1px solid #ccc;
             padding: 0 10px;
-            /*color: #ccc;*/
           }
           textarea{
             width: 340px;

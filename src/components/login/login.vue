@@ -52,10 +52,6 @@
     </div>
 </template>
 <script>
-// $router.push('/login')
- import Top from '@/components/top'
- import Navs from '@/components/nav'
- import Foot from '@/components/foot'
   export default {
     data(){
       return {
@@ -202,11 +198,6 @@
       })
       localStorage.removeItem('Authorization')
     },
-    components: {
-      Top,  //头部
-      Navs, //导航
-      Foot  //公共底部
-    },
   }
 </script>
 <style type="text/less" lang="less" scoped>
@@ -271,6 +262,7 @@
     }
   .Information{
     position: relative;
+    background: #fff;
     .phoness{
       position: absolute;
       right: 16%;

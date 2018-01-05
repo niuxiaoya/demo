@@ -3,7 +3,7 @@
     <Top></Top>
     <!-- :num="0" -->
     <Navs ></Navs>
-    <div class="mian">
+    <div class="mainBox">
       <div class="left">
         <navList :nums="5"></navList>
       </div>
@@ -38,10 +38,6 @@
   </div>
 </template>
 <script type="javascript">
-  import Top from '@/components/top'
-  import Navs from '@/components/nav'
-  import navList from '@/components/navList'
-  import Foot from '@/components/foot'
   export default {
     data(){
       return {
@@ -51,20 +47,22 @@
           card:'',
           bank:'',
           map:'',
+          id:''
         }
       }
     },
     mounted() {
+      document.title= '瑞时会-银行管理'
     },
     methods:{
-      sub(){
-        let reg = /^\d{18}$/
-        let self=this;
-        if(!self.infoList.name){
+      sub() {
+        let reg = /^\d{15,18}$/
+        let self = this;
+        if (!self.infoList.name) {
           this.$message.error('请填写您的姓名');
           return false;
         }
-        if(!self.infoList.card){
+        if (!self.infoList.card) {
           this.$message.error("请填写您的银行卡号");
           return false;
         }
@@ -76,78 +74,74 @@
           this.$message.error("请填写您的所属银行");
           return false
         }
-        if(!self.infoList.map){
+        if (!self.infoList.map) {
           this.$message.error("请填写您的开户行地址");
           return false;
         }
-        self.$http.post(`${process.env.API.USER}/user/bankcard`,{
-          nonce:0.42947779531310104,
-          bank_name:self.infoList.bank,
-          cardholder:self.infoList.name,
-          cardnum:self.infoList.card,
-          is_china:1,
-          opening_bank:self.infoList.bank,
+        if (this.$route.params.bank_name!= undefined) {
+          self.$http.put(`${process.env.API.USER}/user/bankcard`, {
+            nonce: 0.42947779531310104,
+            bank_name: self.infoList.bank,
+            cardholder: self.infoList.name,
+            cardnum: self.infoList.card,
+            is_china: 1,
+            opening_bank: self.infoList.map,
+            id: self.infoList.id
+          }).then(res => {
+            if (res.data.errcode == '0') {
+              this.$message({
+                type: 'success',//success
+                message: "提交成功"
+              });
+              setTimeout(() => {
+                window.history.back(-1);
+              }, 1000)
+            }
+          }).catch(() => {
 
-        }).then(res=>{
-          if(res.data.errcode=='0') {
-            this.$message({
-              type: 'success',//success
-              message: "提交成功"
-            });
-            setTimeout(() => {
-              window.history.back(-1);
-            }, 1000)
-          }
-        }).catch(()=>{
+          })
+        }
+        else{
+          self.$http.post(`${process.env.API.USER}/user/bankcard`,{
+            nonce:0.42947779531310104,
+            bank_name:self.infoList.bank,
+            cardholder:self.infoList.name,
+            cardnum:self.infoList.card,
+            is_china:1,
+            opening_bank:self.infoList.map,
 
-        })
+          }).then(res=>{
+            if(res.data.errcode=='0') {
+              this.$message({
+                type: 'success',//success
+                message: "提交成功"
+              });
+              setTimeout(() => {
+                window.history.back(-1);
+              }, 1000)
+            }
+          }).catch(()=>{
+
+          })
+        }
       }
+
     },
     created(){
-      console.log(this.$route.params)
       if(this.$route.params){
         this.infoList.name= this.$route.params.cardholder
         this.infoList.card= this.$route.params.cardnum
         this.infoList.bank= this.$route.params.bank_name
         this.infoList.map= this.$route.params.opening_bank
-//        name:'',
-//          card:'',
-//          bank:'',
-//          map:'',
+        this.infoList.id= this.$route.params.id
       }
-    },
-    components: {
-      Top,  //头部
-      Navs, //导航
-      navList,
-      Foot  //公共底部
     },
   }
 </script>
 <style lang="less" scoped type="text/less">
   .addBank{
-    .mian{
-      box-sizing:border-box;
-      max-width: 1200px;
-      min-width: 1000px;
-      padding: 0 10px;
-      margin: 0 auto;
-      box-sizing: border-box;
-      background: #fff;
-      min-height: 690px;
-      display: flex;
-      .left{
-        width: 200px;
-        padding-top: 55px;
-        border-right: 1px solid #f5f5f5;
-      }
+    .mainBox{
       .right{
-        padding: 60px;
-        box-sizing:border-box;
-        .title{
-          color: #333;
-          font-size: 24px;
-        }
         .info{
           .input{
              padding-top: 25px;

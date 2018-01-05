@@ -29,9 +29,6 @@
               <dd>
                 <p>{{item.title}}</p>
                 <span>{{item.price}}</span>
-                <!--<button>-->
-                  <!--立即购买-->
-                <!--</button>-->
                 <button @click.stop="openDetail(item)">
                   立即购买
                 </button>
@@ -53,38 +50,35 @@
 
         <div class="market">
           <div class="navs">
-            <span v-for="(i,index) in datas" :class="{'navActive':navId == i.id}"  @click="demos(i)" :id="i.id">
-              {{i.name}}
+            <span v-for="(item,index) in datas.watchAll" :class="{'navActive':navId == item.id}"  @click="demos(item)" :id="item.id" :key="index">
+
+              {{item.name}}
             </span>
           </div>
 
-          <div v-loading="loading" element-loading-text="加载中" style="min-height: 584px;">
-            <div class="list" v-if="bData.length!=0 && datas.length!=0">
+          <div v-loading="loading" element-loading-text="加载中" style="min-height: 651px;">
+            <div class="list" v-if="datas.watchBrand.length!=0 && datas.watchAll.length!=0">
               <div class="jts">
                 <i class="z" @click="jjs"></i>
                 <i class="y" @click="adds"></i>
               </div>
 
-              <div class="marckshop" v-for="(i,$index) in bData" @click="openDetail(i)">
+              <div class="marckshop" v-for="(i,$index) in datas.watchBrand" @click="openDetail(i)" :key="$index">
                 <el-carousel trigger="click"  :autoplay="false">
-                  <el-carousel-item v-for="item in i.file_pic" :key="item">
+                  <el-carousel-item v-for="(item,k) in i.file_pic" :key="k">
                     <img :src="item">
                   </el-carousel-item>
                 </el-carousel>
                 <p class="tt">{{i.title}}</p>
                 <p>{{i.price}}</p>
                 <div class="hidden">
-                  <!--<div class="hbtn">-->
-                  <!--立即购买-->
-                  <!--</div>-->
                   <div class="hbtn" @click.stop="openDetail(i)">
                     立即购买
                   </div>
                 </div>
               </div>
             </div>
-            <div class="over" v-if="bData.length<=0 && !loading">
-              <!--<span class="load" v-loading="loading"></span>-->
+            <div class="over" v-if="datas.watchBrand.length<=0 && !loading">
               <img src="../assets/img/icon.png" alt="">
               <span> 暂无数据...</span>
             </div>
@@ -105,48 +99,18 @@
 
         <div class="market">
           <div class="navs">
-            <span v-for="(i,index) in content" :class="{'navActive':navIds == i.id }" @click="demo(i)">
+            <span v-for="(i,index) in content" :class="{'navActive':navIds == i.id }" @click="demo(i)" :id="i.id" :key="index">
                  {{i.title}}
             </span>
           </div>
-
-          <!--<div class="list" v-if="pData.length!=0">-->
-            <!--<div class="jts">-->
-              <!--<i class="z" @click="jj"></i>-->
-              <!--<i class="y" @click="add"></i>-->
-            <!--</div>-->
-
-            <!--<div class="marckshop" v-for="(i,$index) in pData">-->
-              <!--<el-carousel trigger="click"  :autoplay="false">-->
-              <!--<el-carousel-item v-for="item in i.file_pic" :key="item">-->
-                <!--<img :src="item">-->
-              <!--</el-carousel-item>-->
-            <!--</el-carousel>-->
-              <!--<p>{{i.title}}</p>-->
-              <!--<p>${{i.price}}</p>-->
-              <!--<div class="hidden">-->
-                <!--&lt;!&ndash;<div class="hbtn">&ndash;&gt;-->
-                  <!--&lt;!&ndash;立即购买&ndash;&gt;-->
-                <!--&lt;!&ndash;</div>&ndash;&gt;-->
-                <!--<div class="hbtn" @click="openDetail(i)">-->
-                  <!--立即查看-->
-                <!--</div>-->
-              <!--</div>-->
-            <!--</div>-->
-          <!--</div>-->
-          <!--<div class="over" v-else="pData.length==0">-->
-            <!--&lt;!&ndash;<span class="load" v-loading="loadings"></span>&ndash;&gt;-->
-            <!--<img src="../assets/img/icon.png" alt="">-->
-            <!--<span> 暂无数据...</span>-->
-          <!--</div>-->
-          <div v-loading="loadings" element-loading-text="加载中" style="min-height: 584px;">
-            <div class="list" v-if="pData.length!=0 && datas.length!=0">
+          <div v-loading="loadings" element-loading-text="加载中" style="min-height: 651px;">
+            <div class="list" v-if="datas.watchPrice.length!=0 && datas.watchAll.length!=0">
               <div class="jts">
                 <i class="z" @click="jj"></i>
                 <i class="y" @click="add"></i>
               </div>
 
-              <div class="marckshop" v-for="(i,$index) in pData" @click="openDetail(i)">
+              <div class="marckshop" v-for="(i,$index) in datas.watchPrice" @click="openDetail(i)">
                 <el-carousel trigger="click"  :autoplay="false">
                   <el-carousel-item v-for="item in i.file_pic" :key="item">
                     <img :src="item">
@@ -155,17 +119,13 @@
                 <p  class="tt" >{{i.title}}</p>
                 <p>{{i.price}}</p>
                 <div class="hidden">
-                  <!--<div class="hbtn">-->
-                  <!--立即购买-->
-                  <!--</div>-->
                   <div class="hbtn" @click="openDetail(i)">
                     立即购买
                   </div>
                 </div>
               </div>
             </div>
-            <div class="over" v-if="pData.length<=0 && !loadings">
-              <!--<span class="load" v-loading="loading"></span>-->
+            <div class="over" v-if="datas.watchPrice.length<=0 && !loadings">
               <img src="../assets/img/icon.png" alt="">
               <span> 暂无数据...</span>
             </div>
@@ -182,14 +142,11 @@
   </div>
 </template>
 <script type="javascript">
-  import Top from '@/components/top'
-  import Navs from '@/components/nav'
   import Banners from '@/components/index/banners'
 //  故事
   import Story from '@/components/index/story'
 //  保障
   import Guarantee from '@/components/index/guarantee'
-  import Foot from '@/components/foot'
   export default {
     data () {
       return {
@@ -197,8 +154,11 @@
         navNum:0,
         navId:1,
         navIds:1,
-        bData:'',
-        datas:'',
+        datas:{
+          watchAll:'',
+          watchBrand:'',
+          watchPrice:'',
+        },
         loading: true,
         loadings: true,
         arr:[],
@@ -207,9 +167,8 @@
         },
         postData: {
           money1: '60',
-          money2: '80',
+          money2: '79.9999999999999',
         },
-        pData:'',
         img:"",
         dataList:
           {
@@ -259,12 +218,8 @@
         price_p:1,
         bard_p:1,
         p_bard:0,
-        page:0
+        page:0,
       }
-    },
-    created(){
-
-
     },
     methods:{
       openDetail(item) {
@@ -290,7 +245,7 @@
             break;
           case 4:
             this.postData.money1=200
-            this.postData.money2=
+            this.postData.money2=null
             this.getPrice()
             break
         }
@@ -299,7 +254,6 @@
       jj(){
         if(this.price_p>1){
           this.price_p--;
-          console.log(this.price_p)
           return this.getPrice()
         }
       },
@@ -307,7 +261,6 @@
       add(){
         if(this.price_p<this.page){
           this.price_p++;
-          console.log(this.price_p)
           return this.getPrice()
         }
       },
@@ -319,7 +272,6 @@
       jjs(){
         if(this.bard_p>1){
           this.bard_p--;
-          console.log(this.bard_p)
           return this.getMacket()
         }
       },
@@ -327,15 +279,7 @@
       adds(){
         if(this.bard_p<this.p_bard){
           this.bard_p++;
-          console.log(this.bard_p)
           return this.getMacket()
-//          background: url("../assets/img/zjts.png");
-//            background: url("../assets/img/hzjt.png");
-//
-//
-//
-//          background: url("../assets/img/yjts.png");
-//            background: url("../assets/img/hyjt.png");
         }
       },
 //      价格区域数据变化
@@ -352,7 +296,7 @@
       },
 //      价格请求
       getPrice(){
-        this.pData="";
+        this.datas.watchPrice="";
         let self = this
         this.loadings=true
         setTimeout(() => {
@@ -363,7 +307,7 @@
                   res.data.data[i].file_pic=res.data.data[i].file_pic.split(",")
                 }
               }
-              this.pData=res.data.data;
+              this.datas.watchPrice=res.data.data;
               self.page=res.data.page.total_pages
             }
             self.loadings = false
@@ -374,28 +318,25 @@
       },
 //      品牌请求
       getMacket(){
-        this.bData="";
+        this.datas.watchBrand="";
         this.loading=true
         let self = this
         setTimeout(()=>{
           this.brandData.brand=this.navId;
           this.$http.get(`${process.env.API.MARKET}/market/buyer/goodsList?brand_id=${this.brandData.brand}&rows=3&p=${this.bard_p}`).then(res=>{
-            if(res.data.data.length!=0){;
+            if (res.data.errcode == '0') {
               for(var i=0;i<res.data.data.length;i++){
                 if(res.data.data[i].file_pic.length!=0){
                   res.data.data[i].file_pic=res.data.data[i].file_pic.split(",")
                 }
               }
-              this.bData=res.data.data;
-
+              this.datas.watchBrand=res.data.data;
               self.p_bard=res.data.page.total_pages
-
             }else{
 
             }
             self.loading = false
           }).catch(err=>{
-//          console.log(err)
             self.loading = false
           })
         },500)
@@ -404,6 +345,7 @@
     },
 
     mounted(){
+      document.title= '瑞时会-只珍藏顶级腕表和你'
       this.uid = localStorage.getItem('Authorization')
       this.$http.get(`${process.env.API.USER}/user/userinfo`).then(res=>{
 
@@ -420,12 +362,12 @@
       })
 
 //      品牌手表全部请求
-      this.$http.get(`${process.env.API.DICT}/dict/brand?is_pc=1`).then(res=>{
+      this.$http.get(`${process.env.API.DICT}/dict/brand`).then(res=>{
         if(res.data.data.length!=0){
-          this.datas=res.data.data.splice(0,5);
-          this.navId=this.datas[0].id
-          for(var i=0;i<this.datas.length;i++){
-              this.arr.push(this.datas[i].id)
+          this.datas.watchAll=res.data.data.splice(0,5);
+          this.navId=this.datas.watchAll[0].id
+          for(var i=0;i<this.datas.watchAll.length;i++){
+              this.arr.push(this.datas.watchAll[i].id)
           }
         }
       }).catch(err=>{
@@ -436,15 +378,11 @@
       this.getMacket()
 //      价格请求
       this.getPrice()
-
     },
     components: {
-      Top,  //头部
-      Navs, //导航
       Banners,  //banner
       Story,   //品牌故事
       Guarantee,  //客服保障
-      Foot  //公共底部
     },
   }
 </script>
@@ -475,7 +413,7 @@
       }
       .center{
          box-sizing:border-box;
-      background: #fafafa;
+        background: #fafafa;
         margin: 0 auto;
         padding:0 10px;
         min-width: 1000px;
@@ -574,7 +512,7 @@
                 span{
                   font-size: 18px;
                   color: #333;
-                  padding-top: 35px;
+                  padding-top: 24px;
                   position: relative;
                   display: block;
                   &:before {
@@ -667,7 +605,7 @@
                   width: 32px;
                   height: 53px;
                   position: absolute;
-                  top: 244px;
+                  top: 258px;
                   cursor: pointer;
                 }
                 .z{
@@ -692,8 +630,8 @@
                 position: relative;
                 text-align: center;
                 height: 470px;
-                margin-right: 70px;
                 display: flex;
+                margin-right: 50px;
                 flex-direction: column;
                 justify-content: center;
                 &:last-child{
@@ -702,7 +640,6 @@
                   .hbtn{
                     position: absolute;
                     display: none;
-
                   }
                   .zjt{
                     display: none;
@@ -757,7 +694,7 @@
 
                 img{
                   width:100%;
-                  height: auto;
+                  height: 100%;
                   padding-bottom: 20px;
                   object-fit: cover;
                 }
@@ -767,11 +704,10 @@
                   color: #333;
                 }
                 .tt{
-                  height: 45px;
+                  height: 20px;
                   overflow: hidden;
                   text-overflow: ellipsis;
                   display: -webkit-box;
-                  -webkit-line-clamp: 2;
                   -webkit-box-orient: vertical;
                 }
               }

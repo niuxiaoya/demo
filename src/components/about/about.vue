@@ -6,38 +6,26 @@
         <div class="BannerImgs" v-for="item in content" v-html="item.content">
         </div>
       </div>
-
       <Foot></Foot>
   </div>
 </template>
 <script>
- import Top from '@/components/top'
- import Navs from '@/components/nav'
- import Foot from '@/components/foot'
   export default {
    data(){
      return {
-       content:''
+       content:'',
+       aboutUrl:`${process.env.API.SYSTEM}/system/aboutus`
      }
    },
     mounted() {
+      document.title= '瑞时会-关于我们'
       let self=this;
-//
-      this.$http.get(`${process.env.API.SYSTEM}/system/aboutus`)
+      this.$http.get(self.aboutUrl)
      .then(res=>{
        this.content=res.data.data
       }).catch(() => {
 
       })
-
-
-
-
-    },
-    components: {
-      Top,  //头部
-      Navs, //导航
-      Foot  //公共底部
     },
   }
 </script>
@@ -46,7 +34,6 @@
     min-height: 100vm;
     .BannerImgs{
       min-height: 500px;
-      min-width: 1000px;
       max-width: 1200px;
       margin: 0 auto;
     }
@@ -54,15 +41,10 @@
 </style>
 <style type="text/less" lang="less">
   .About{
-    /*.banners{*/
-    /*min-width: 1000px;*/
-    /*max-width: 1200px;*/
-
     .BannerImgs{
       min-height: 500px;
       img{
         height: auto;
-        min-width: 1000px;
         max-width: 1200px;
         width: 100%;
         object-fit: cover;
@@ -71,6 +53,8 @@
         margin:0 auto;
       }
     }
-
+    .ql-editor{
+      margin: 0 auto;
+    }
   }
 </style>

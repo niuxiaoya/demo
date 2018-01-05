@@ -3,7 +3,7 @@
     <Top></Top>
     <!-- :num="0" -->
     <Navs ></Navs>
-    <div class="mian">
+    <div class="mainBox">
       <div class="left">
        <navList :nums="0"></navList>
       </div>
@@ -24,7 +24,7 @@
               <img src="../../assets/img/login/Pay.png">
             </p>
             <p>
-              <span>待付款订单：<b>{{buyer && buyer.paid?buyer.paid:0}}</b></span>
+              <span>待付款订单：<b>{{buyer && buyer.pay?buyer.pay:'0'}}</b></span>
               <span @click="$router.push('/login/myBuy?id=1')">查看全部</span>
             </p>
           </li>
@@ -33,7 +33,7 @@
               <img src="../../assets/img/login/paid.png">
             </p>
             <p>
-              <span>已付款订单：<b>{{buyer && buyer.pay?buyer.pay:''}}</b></span>
+              <span>已付款订单：<b>{{buyer && buyer.paid?buyer.paid:'0'}}</b></span>
               <span @click="$router.push('/login/myBuy?id=2')">查看全部</span>
             </p>
           </li>
@@ -42,7 +42,7 @@
               <img src="../../assets/img/login/goods.png">
             </p>
             <p>
-              <span>待收获订单：<b>{{buyer && buyer.delivery?buyer.delivery:''}}</b></span>
+              <span>待收货订单：<b>{{buyer && buyer.delivery?buyer.delivery:'0'}}</b></span>
               <span @click="$router.push('/login/myBuy?id=3')">查看全部</span>
             </p>
           </li>
@@ -51,7 +51,7 @@
               <img src="../../assets/img/login/Pay.png">
             </p>
             <p>
-              <span>待付款订单：<b>{{buyer && buyer.evaluate ?buyer.evaluate:''}}</b></span>
+              <span>待评价订单：<b>{{buyer && buyer.evaluate ?buyer.evaluate:'0'}}</b></span>
               <span @click="$router.push('/login/myBuy?id=4')">查看全部</span>
             </p>
           </li>
@@ -60,7 +60,7 @@
               <img src="../../assets/img/login/evaluate.png">
             </p>
             <p>
-              <span>待评价订单：<b>{{buyer && buyer.lose ?buyer.lose:''}}</b></span>
+              <span>已失效订单：<b>{{buyer && buyer.lose ?buyer.lose:'0'}}</b></span>
               <span @click="$router.push('/login/myBuy?id=5')">查看全部</span>
             </p>
           </li>
@@ -71,10 +71,6 @@
   </div>
 </template>
 <script type="javascript">
-  import Top from '@/components/top'
-  import Navs from '@/components/nav'
-  import navList from '@/components/navList'
-  import Foot from '@/components/foot'
   export default {
     data(){
       return {
@@ -89,6 +85,7 @@
       }
     },
     mounted() {
+      document.title= '瑞时会-个人中心'
       setTimeout(()=>{
         let self=this;
         self.$http.get(`${process.env.API.USER}/user/userinfo?nonce=0.9954606018503807&is_pc=1`).then(res=>{
@@ -109,36 +106,13 @@
     methods:{
 
     },
-    components: {
-      Top,  //头部
-      Navs, //导航
-      navList,
-      Foot  //公共底部
-    },
   }
 </script>
 <style lang="less" scoped type="text/less">
   .People{
-    .mian{
-      box-sizing:border-box;
-      max-width: 1200px;
-      min-width: 1000px;
-      padding: 0 10px;
-      margin: 0 auto;
-      box-sizing: border-box;
-      background: #fff;
-      min-height: 690px;
-      display: flex;
-      .left{
-        width: 200px;
-        padding-top: 55px;
-        border-right: 1px solid #f5f5f5;
-      }
+    .mainBox{
       .right{
-        padding: 60px;
-        box-sizing:border-box;
         .title{
-          color: #333;
           font-size: 14px;
           padding-bottom: 30px;
           height: 101px;

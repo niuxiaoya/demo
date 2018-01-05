@@ -3,7 +3,7 @@
     <Top></Top>
     <!-- :num="0" -->
     <Navs ></Navs>
-    <div class="mian">
+    <div class="mainBox">
       <div class="left">
         <navList :nums="6"></navList>
       </div>
@@ -69,10 +69,6 @@
   </div>
 </template>
 <script type="javascript">
-  import Top from '@/components/top'
-  import Navs from '@/components/nav'
-  import navList from '@/components/navList'
-  import Foot from '@/components/foot'
   export default {
     data(){
       return {
@@ -100,6 +96,7 @@
       }
     },
     mounted() {
+      document.title= '瑞时会-地址管理'
       let self=this;
       self.$http.get(`${process.env.API.DICT}/dict/area`,{params:{
         kind:'all',
@@ -142,31 +139,62 @@
 //          this.$message.error("请设为默认");
 //          return false;
 //        }
-        self.$http.post(`${process.env.API.USER}/user/address`,{
-          address: self.infoList.map,
-          city_code: self.city_code,
-          dist_code: self.dist_code,
-          prov_code: self.prov_code,
-          is_default:1,
-          receiver: self.infoList.name,
-          receiver_tel: self.infoList.tel
-        }).then(res => {
-          if(res.data.errcode=='0'){
-            this.$message({
-              type: 'success',//success
-              message: "提交成功"
-            });
-            window.history.back(-1);
+        console.log(this.$route.params.city_code)
+        if(this.$route.params.city_code!=undefined){
+          console.log(this.$route.params)
+          self.$http.put(`${process.env.API.USER}/user/address`,{
+            address: self.infoList.map,
+            city_code: this.$route.params.city_code,
+            dist_code: this.$route.params.dist_code,
+            prov_code: this.$route.params.prov_code,
+            is_default:this.$route.params.is_default,
+            receiver: this.$route.params.receiver,
+            receiver_tel: this.$route.params.receiver_tel,
+            id: this.$route.params.id
+          }).then(res => {
+            if(res.data.errcode=='0'){
+              this.$message({
+                type: 'success',//success
+                message: "提交成功"
+              });
+              window.history.back(-1);
 
-          }else{
-            this.$message({
-              message: '提交失败',
-              type: 'warning'
-            });
-          }
-        }).catch(err => {
-          console.log(err)
-        })
+            }else{
+              this.$message({
+                message: '提交失败',
+                type: 'warning'
+              });
+            }
+          }).catch(err => {
+            console.log(err)
+          })
+        }else{
+          self.$http.post(`${process.env.API.USER}/user/address`,{
+            address: self.infoList.map,
+            city_code: self.city_code || this.$route.params.city_code,
+            dist_code: self.dist_code || this.$route.params.dist_code,
+            prov_code: self.prov_code ||this.$route.params.prov_code,
+            is_default:this.$route.params.is_default,
+            receiver: self.infoList.name,
+            receiver_tel: self.infoList.tel
+          }).then(res => {
+            if(res.data.errcode=='0'){
+              this.$message({
+                type: 'success',//success
+                message: "提交成功"
+              });
+              window.history.back(-1);
+
+            }else{
+              this.$message({
+                message: '提交失败',
+                type: 'warning'
+              });
+            }
+          }).catch(err => {
+            console.log(err)
+          })
+        }
       },
       sel(item){
         this.infoList.she=item.name;
@@ -191,6 +219,7 @@
     },
     created(){
       let arr=[]
+
       if(this.$route.params.city_name){
         arr=this.$route.params.city_name.split("/")
         this.infoList.name= this.$route.params.receiver
@@ -201,38 +230,12 @@
         this.infoList.map= this.$route.params.address
       }
     },
-    components: {
-      Top,  //头部
-      Navs, //导航
-      navList,
-      Foot  //公共底部
-    },
   }
 </script>
 <style lang="less" scoped type="text/less">
   .addMap{
-    .mian{
-      box-sizing:border-box;
-      max-width: 1200px;
-      min-width: 1000px;
-      padding: 0 10px;
-      margin: 0 auto;
-      box-sizing: border-box;
-      background: #fff;
-      min-height: 690px;
-      display: flex;
-      .left{
-        width: 200px;
-        padding-top: 55px;
-        border-right: 1px solid #f5f5f5;
-      }
+    .mainBox{
       .right{
-        padding: 60px;
-        box-sizing:border-box;
-        .title{
-          color: #333;
-          font-size: 24px;
-        }
         .info{
           margin-top: 7px;
           padding: 0 30px;

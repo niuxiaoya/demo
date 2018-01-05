@@ -1,0 +1,62 @@
+.page{
+  .item{
+    font-size: 16px;
+    color: #666;
+    height: 16px;
+    line-height: 30px;
+    cursor: pointer;
+    i{
+      font-style: normal;
+    }
+  }
+  .el-pagination{
+    .el-pager li.active+li{
+      background: none;
+    }
+    .btn-prev,.btn-next{
+      border: none!important;
+      background: none;
+    }
+    .el-pager{
+      background: none;
+      .number,.btn-quicknext,.btn-quickprev{
+        border: none;
+        font-size: 16px;
+        color: #666;
+      }
+      .active{
+        color: #333;
+        background: none;
+        border: 1px solid #333;
+      }
+    }
+  }
+}
+.el-radio-group{
+  width: 100%;
+}
+.el-radio{
+  width: 48%;
+  padding-bottom: 18px;
+  margin-left: 0;
+  .is-checked{
+    .el-radio__inner{
+      background: none;
+      border: 1px solid #000;
+      &:after{
+        background: #000!important;
+      }
+    }
+  }
+}
+.el-checkbox{
+  width: 49%;
+  margin-left: 0;
+  padding-bottom: 18px;
+  .el-checkbox__inner{
+    background: #fff;
+    &:after{
+      border-color: #333;
+    }
+  }
+}

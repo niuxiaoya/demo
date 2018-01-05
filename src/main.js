@@ -1,15 +1,15 @@
 // The Vue build version to load with the `import` command
 // (runtime-only or standalone) has been set in webpack.base.conf with an alias.
 import Vue from 'vue'
-// import ElementUI from 'element-ui'
-// import { Upload } from 'element-ui'
 import ElementUI from 'element-ui'
 import 'element-ui/lib/theme-default/index.css'
 import App from './App'
 import router from './router'
+// import store from "./vuex/store"
 import i18n from '@/plugin/vue-i18n'
 import Axios from '@/plugin/axios'
 import '@/assets/css/app.less'
+import '@/assets/css/commin.less'
 import '@/assets/css/threesixty.css'
 import Moment from 'moment'
 import IdcmComponent from '@/components/index'
@@ -38,6 +38,12 @@ new Vue({
   el: '#app',
   i18n,
   router,
+  // store,
   template: '<App/>',
-  components: { App }
+  components: { App },
+  data(){
+    return{
+      proEvent:new Vue()
+    }
+  }
 })

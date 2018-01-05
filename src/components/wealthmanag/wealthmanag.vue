@@ -22,6 +22,9 @@
           </div>
         </div>
       <div class="info">
+        <div class="fileBuy" v-if="ifFile">
+          <span class="reds">失败原因：</span>{{remark}}
+        </div>
         <div class="inlin">
           <div class="input inputPos">
             <span>腕表品牌 </span>
@@ -196,13 +199,25 @@
           </ul>
         </div>
         <div class="input">
-          <span>表格材质 </span>
+          <span>机芯类型 </span>
           <ul class="tab" style="height: auto">
-            <li v-for="(item,index) in material"  :class="{'active':postData.material_id==item.id}" @click="watchCaseClick(item,index)">{{item.name}}</li>
+            <li v-for="(item,index) in movement"  :class="{'active':postData.movement_id==item.id}" @click="watchCaseClick(item,index,1)">{{item.name}}</li>
+          </ul>
+        </div> <div class="input">
+        <span>表壳材质 </span>
+        <ul class="tab" style="height: auto">
+          <li v-for="(item,index) in material"  :class="{'active':postData.material_id==item.id}" @click="watchCaseClick(item,index,2)">{{item.name}}</li>
+        </ul>
+      </div>
+        <div class="input">
+          <span>表盘形状 </span>
+          <ul class="tab" style="height: auto">
+            <li v-for="(item,index) in shape"  :class="{'active':postData.shape_id==item.id}" @click="watchCaseClick(item,index,3)">{{item.name}}</li>
           </ul>
         </div>
         <div class="input">
           <span>复杂功能 </span>
+          <span class="checkboxMore">(多选)</span>
           <ul class="tab" style="height: auto">
             <li v-for="(item,index) in functionss"  :class="{'active':postData.function_id.indexOf(item.manage.id.toString())>-1}"
                 @click="complexClick(item,index)">{{item.manage.name}}
@@ -310,18 +325,17 @@
   </div>
 </template>
 <script type="javascript">
-  import Top from '@/components/top'
-  import Navs from '@/components/nav'
-  import Foot from '@/components/foot'
   export default {
     data(){
       return {
+        remark:'',
+        ifFile:false,
         uploadUrl:`${process.env.API.USER}/user/upload`,
         imageUrl:require('../../assets/img/zhuanz.png'),
         imgHead:`${process.env.API.USER}/user/upload`,
         head: {
           AccessToken: localStorage.getItem('AccessToken'),
-          Authorization: localStorage.getItem('userId')
+          Authorization: localStorage.getItem('Authorization')
         },
         imgData: [
           '', '', '', '', '', '', '', '', ''
@@ -385,7 +399,9 @@
             name: '中性',
           },
         ],//性别
+        movement:'',//机芯类型
         material:'',//表壳材质
+        shape:'',//表盘形状
         functionss:'',//复杂功能
         yhCard:'',//银行卡
         fineness:'',//成色
@@ -407,63 +423,80 @@
         imgList:[
         ],
         contentList:'',
+        httpUrl:{
+          movementUrl:`${process.env.API.DICT}/dict/movement`, //机芯类型
+          materialUrl:`${process.env.API.DICT}/dict/material`, //表壳材质
+          shapeUrl:`${process.env.API.DICT}/dict/shape`, //表盘形状
+          functionUrl:`${process.env.API.DICT}/dict/function`, //复杂功能
+          finenessUrl:`${process.env.API.DICT}/dict/fineness`, //成色
+          infoCityUrl:`${process.env.API.DICT}/dict/area?kind=${'all'}&nonce=${0.9064637705159901}`, //地址
+          brandUrl:`${process.env.API.DICT}/dict/brand?is_pc=1`, //品牌
+          bankcardUrl:`${process.env.API.USER}/user/bankcard`, //银行卡
+          EXCHANGEUrl:`${process.env.API.NEWS}/news/agreement?name=${'EXCHANGE'}`, //在售协议
+        }
       }
-
     },
     created(){
-      let self =this;
-      self.$http.get(`${process.env.API.MARKET}/market/seller/republishinfo?gid=${this.$route.query.gid}`).then(res => {
-        if (res.data.errcode == '0') {
-          self.infoList.brand = res.data.data.brand_name //品牌名字
+     setTimeout(()=>{
+       if(this.$route.query.gid!=undefined){
+         this.ifFile=true
+       }else{
+         this.ifFile=false
+       }
+       let self =this;
+       self.postData.file_id=""
+       self.$http.get(`${process.env.API.MARKET}/market/seller/republishinfo?gid=${this.$route.query.gid}`).then(res => {
+         if (res.data.errcode == '0') {
+           self.infoList.brand = res.data.data.brand_name //品牌名字
 
-          self.postData.brand_id = res.data.data.brand_id //品牌名字
-          self.postData.function_id = res.data.data.function_id.replace(/^,*|,*$/g, '').split(',') //品牌名字
-          self.postData.details = res.data.data.details//详情
-          self.postData.title = res.data.data.title//标题
-          self.postData.gender = res.data.data.gender //性别
-          self.postData.material_id = res.data.data.material_id //材质
-          self.postData.original_price = res.data.data.original_price.split("￥")[1]/10000//原价
-          self.postData.price = res.data.data.price.split("￥")[1]/10000//售价
-//          self.postData.cover = res.data.data.cover_fid//售价
-//          self.postData.movement_id = res.data.data.movement_id //机芯
-          self.postData.fineness_id = res.data.data.fineness_id//成色id
-          self.postData.bankcard_id = res.data.data.user_bankcard_id//银行卡id
-//          self.infoList.card = res.data.data.remark//银行卡
-//          self.infoList.cardUser = res.data.data.publish_user//银行卡
-          for (let b = 0; b < self.infoList.length; b++) {
-            if (self.infoList[b].id == self.postData.bankcard_id) {
-              self.bank = `${self.infoList[b].bank_name}(${self.infoList[b].cardnum})`
-            }
-          }
-          self.infoList.fineness_id = res.data.data.fineness_name //成色展示
-          self.infoList.she = res.data.data.area.split("/")[0] //省市区展示
+           self.postData.brand_id = res.data.data.brand_id //品牌名字
+           self.postData.function_id = res.data.data.function_id.replace(/^,*|,*$/g, '').split(',') //品牌名字
+           self.postData.details = res.data.data.details//详情
+           self.postData.title = res.data.data.title//标题
+           self.postData.gender = res.data.data.gender //性别
+           self.postData.material_id = res.data.data.material_id //材质
+           self.postData.original_price = res.data.data.original_price.split("￥")[1]/10000//原价
+           self.postData.price = res.data.data.price.split("￥")[1]/10000//售价
+           self.postData.cover = res.data.data.cover_fid//售价
+           self.postData.movement_id = res.data.data.movement_id //机芯
+           self.postData.fineness_id = res.data.data.fineness_id//成色id
+           self.postData.bankcard_id = res.data.data.user_bankcard_id//银行卡id
+           for (let b = 0; b < self.infoList.length; b++) {
+             if (self.infoList[b].id == self.postData.bankcard_id) {
+               self.bank = `${self.infoList[b].bank_name}(${self.infoList[b].cardnum})`
+             }
+           }
+           self.infoList.fineness_id = res.data.data.fineness_name //成色展示
+           self.infoList.she = res.data.data.area.split("/")[0] //省市区展示
 
-          let file_pic = res.data.data.file_pic.split(',')//图片
+           let file_pic = res.data.data.file_pic.split(',')//图片
 
-          for (let i = 0; i < 9; i++) {
-            if (file_pic[i] && file_pic[i] != -1) {
-              self.img[i].img = file_pic[i]
-            }
-          }
-          self.postData.file_id = res.data.data.file_fid.split(',')//图片id
-          self.imgData = self.postData.file_id//图片id
-          self.postData.diameter = res.data.data.diameter//直径
-          self.prov_code = res.data.data.prov_code
-          self.city_code = res.data.data.city_code
-          self.dist_code = res.data.data.dist_code
-          self.infoList.city = res.data.data.area.split("/")[1] //省市区展示
-          self.infoList.qu = res.data.data.area.split("/")[2] //省市区展示
-          for (let b = 0; b < self.yhCard.length; b++) {
-            if (self.yhCard[b].id == self.postData.bankcard_id) {
-              self.infoList.card = `${self.yhCard[b].bank_name}(${self.yhCard[b].cardnum})`
-//              =item.bank_name+"("+item.cardnum+")";
-            }
-          }
-//          self.postData.shape_id = res.data.data.shape_id//形状
-        }
-      }).catch(err => {
-        console.log(err)
-      })
+           for (let i = 0; i < 9; i++) {
+             if (file_pic[i] && file_pic[i] != -1) {
+               self.img[i].img = file_pic[i]
+             }
+           }
+           self.postData.file_id = res.data.data.file_fid.split(',')//图片id
+           self.imgData = self.postData.file_id//图片id
+           self.postData.diameter = res.data.data.diameter//直径
+           self.prov_code = res.data.data.prov_code
+           self.city_code = res.data.data.city_code
+           self.dist_code = res.data.data.dist_code
+           self.infoList.city = res.data.data.area.split("/")[1] //省市区展示
+           self.infoList.qu = res.data.data.area.split("/")[2] //省市区展示
+           for (let b = 0; b < self.yhCard.length; b++) {
+             if (self.yhCard[b].id == self.postData.bankcard_id) {
+               self.infoList.card = `${self.yhCard[b].bank_name}(${self.yhCard[b].cardnum})`
+             }
+           }
+
+           self.remark = res.data.data.remark
+           self.postData.shape_id = res.data.data.shape_id//形状
+         }
+       }).catch(err => {
+         console.log(err)
+       })
+     })
     },
     methods: {
       /**
@@ -480,14 +513,32 @@
       },
       /**
        *
-       * 表壳材质
+       * 机芯类型  形状  材质
        */
-      watchCaseClick(item, index) {
+      watchCaseClick(item, index,i) {
         let self = this
-        if (item.id == self.postData.material_id) {
-          self.postData.material_id = ''
-        } else {
-          self.postData.material_id = item.id
+        switch (i){
+          case 1:
+            if (item.id == self.postData.movement_id) {
+              self.postData.movement_id = ''
+            } else {
+              self.postData.movement_id = item.id
+            }
+            break;
+          case 2:
+            if (item.id == self.postData.material_id) {
+              self.postData.material_id = ''
+            } else {
+              self.postData.material_id = item.id
+            }
+            break;
+          case 3:
+            if (item.id == self.postData.shape_id) {
+              self.postData.shape_id = ''
+            } else {
+              self.postData.shape_id = item.id
+            }
+            break;
         }
       },
       /**
@@ -621,78 +672,41 @@
             break;
         }
       },
-      successImg1(res, file) {
+      successImg(res,file,type){
         if (res.errcode == '0') {
-          this.img[0].img = URL.createObjectURL(file.raw);
+          this.img[type].img = URL.createObjectURL(file.raw);
           this.postData.cover = res.fileinfo.fid
-          this.imgData[0] = res.fileinfo.fid
+          this.imgData[type] = res.fileinfo.fid
         } else {
-          this.$toast(res.errmsg)
+          this.$message.error(res.errmsg);
         }
+      },
+      successImg1(res, file) {
+       this.successImg(res, file,0)
       },
       successImg2(res, file) {
-        if (res.errcode == '0') {
-          this.img[1].img = URL.createObjectURL(file.raw);
-          this.imgData[1] = res.fileinfo.fid
-        } else {
-          this.$toast(res.errmsg)
-        }
+        this.successImg(res, file,1)
       },
       successImg3(res, file) {
-        if (res.errcode == '0') {
-          this.img[2].img = URL.createObjectURL(file.raw);
-          this.imgData[2] = res.fileinfo.fid
-        } else {
-          this.$toast(res.errmsg)
-        }
+        this.successImg(res, file,2)
       },
       successImg4(res, file) {
-        if (res.errcode == '0') {
-          this.img[3].img = URL.createObjectURL(file.raw);
-          this.imgData[3] = res.fileinfo.fid
-        } else {
-          this.$toast(res.errmsg)
-        }
+        this.successImg(res, file,3)
       },
       successImg5(res, file) {
-        if (res.errcode == '0') {
-          this.img[4].img = URL.createObjectURL(file.raw);
-          this.imgData[4] = res.fileinfo.fid
-        } else {
-          this.$toast(res.errmsg)
-        }
+        this.successImg(res, file,4)
       },
       successImg6(res, file) {
-        if (res.errcode == '0') {
-          this.img[5].img = URL.createObjectURL(file.raw);
-          this.imgData[5] = res.fileinfo.fid
-        } else {
-          this.$toast(res.errmsg)
-        }
+        this.successImg(res, file,5)
       },
       successImg7(res, file) {
-        if (res.errcode == '0') {
-          this.img[6].img = URL.createObjectURL(file.raw);
-          this.imgData[6] = res.fileinfo.fid
-        } else {
-          this.$toast(res.errmsg)
-        }
+        this.successImg(res, file,6)
       },
       successImg8(res, file) {
-        if (res.errcode == '0') {
-          this.img[7].img = URL.createObjectURL(file.raw);
-          this.imgData[7] = res.fileinfo.fid
-        } else {
-          this.$toast(res.errmsg)
-        }
+        this.successImg(res, file,7)
       },
       successImg9(res, file) {
-        if (res.errcode == '0') {
-          this.img[8].img = URL.createObjectURL(file.raw);
-          this.imgData[8] = res.fileinfo.fid
-        } else {
-          this.$toast(res.errmsg)
-        }
+        this.successImg(res, file,8)
       },
       beforeAvatarUpload(file) {
         const isLt5M = file.size / 1024 / 1024 < 5;
@@ -716,6 +730,7 @@
       },
       sub(){
         let self=this;
+        self.postData.file_id=''
         if(!self.infoList.brand){
           this.$message.error("请填写您的腕表品牌");
           return false;
@@ -756,7 +771,7 @@
           this.$message.error("请填写表盘直径");
           return false;
         }
-        if(self.postData.original_price<1){
+        if(self.postData.original_price<=0){
           this.$message.error("请正确填写原价");
           return false;
         }
@@ -764,7 +779,7 @@
           this.$message.error("请填写原价");
           return false;
         }
-        if(self.postData.price<1){
+        if(self.postData.price<=0){
           this.$message.error("请正确填写售价");
           return false;
         }
@@ -772,18 +787,9 @@
           this.$message.error("请填写售价");
           return false;
         }
-        if( self.postData.file_id==undefined){
-          for (let i = 0; i < 9; i++) {
-            if (self.imgData[i]) {
-              self.postData.file_id.push(self.imgData[i])
-            } else {
-              self.postData.file_id.push(-1)
-            }
-          }
-          self.imgData=self.postData.file_id
-        }
-//        console.log(self.postData.file_id.splice(0,9))
-        self.$http.post(`${process.env.API.MARKET}/market/seller/publish`,{
+        self.imgData=self.imgData
+        let postDatas;
+        postDatas={
           bankcard_id:self.postData.bankcard_id,
           brand_id:self.postData.brand_id,
           city_code:self.city_code,
@@ -797,38 +803,87 @@
           gender:self.postData.gender,
           location:self.infoList.she,
           material_id:self.postData.material_id,
-//          movement_id:1
-          original_price:self.postData.original_price,
+          movement_id:self.postData.movement_id,
+          original_price:self.postData.original_price*10000,
           price:self.postData.price*10000,
-          prov_code:self.prov_code*10000,
-//          shape_id:2,
+          prov_code:self.prov_code,
+          shape_id:self.postData.shape_id,
           title:self.postData.title,
-        }).then(res => {
-          if(res.data.errcode=='0'){
-            this.$message({
-              type: 'success',//success
-              message: "提交成功"
-            });
-//            setTimeout(()=>{
-//              window.history.back(-1);
-//            },1000)
-            self.$router.push("/buy")
+          gid:self.$route.query.gid || '',
+        }
+        if(self.$route.query.gid!=undefined){
+          self.$http.put(`${process.env.API.MARKET}/market/seller/publish`,postDatas).then(res => {
+            if(res.data.errcode=='0'){
+              this.$message({
+                type: 'success',//success
+                message: "提交成功"
+              });
+              self.$router.push("/login/public")
 
-          }else{
-            this.$message.error("发布失败");
-          }
-        }).catch(err => {
+            }else{
+              this.$message.error("发布失败");
+            }
+          }).catch(err => {
+            console.log(err)
+          })
+          return false
+        }
+        if(self.$route.query.gid==undefined){
+          self.$http.post(`${process.env.API.MARKET}/market/seller/publish`,postDatas).then(res => {
+            if(res.data.errcode=='0'){
+              this.$message({
+                type: 'success',//success
+                message: "提交成功"
+              });
+              self.$router.push("/login/public")
+            }else{
+              this.$message.error(res.data.errmsg);
+            }
+          }).catch(err => {
+            console.log(err)
+          })
+          return false
+        }
+      },
+      /**
+       *http请求
+       */
+      httpFn(httpUrl,callbackFn){
+        let self=this
+        self.$http.get(httpUrl).then(
+          callbackFn
+        ).catch(err=>{
           console.log(err)
         })
       },
     },
     mounted() {
-
+      window.scrollTo(0,0)
+      document.title= '瑞时会-直售'
       let self=this;
-      /**
-       *品牌
-       */
-      self.$http.get(`${process.env.API.DICT}/dict/brand?is_pc=1`).then(res=>{
+      self.httpFn(self.httpUrl.movementUrl,res=>{
+        if(res.data.errcode == '0'){
+          self.movement=res.data.data
+        }
+      })
+      self.httpFn(self.httpUrl.materialUrl,res=>{
+        if(res.data.errcode == '0'){
+          self.material=res.data.data
+        }
+      })
+      self.httpFn(self.httpUrl.shapeUrl,res=>{
+        self.shape=res.data.data
+      })
+      self.httpFn(self.httpUrl.functionUrl,res=>{
+        self.functionss=res.data.data
+      })
+      self.httpFn(self.httpUrl.finenessUrl,res=>{
+        self.fineness=res.data.data
+      })
+      self.httpFn(self.httpUrl.infoCityUrl,res=>{
+        self.infoCity=res.data
+      })
+      self.httpFn(self.httpUrl.brandUrl,res=>{
         self.brand = res.data.data
         let arr = []
         for (let value in self.brand) {
@@ -839,102 +894,22 @@
           arr = arr.concat(self.brand[value].name)
         }
         self.brand = arr
-      }).catch(err=>{
-        console.log(err)
       })
-      /**
-       *表壳材质
-       */
-      self.$http.get(`${process.env.API.DICT}/dict/material`).then(res=>{
-        self.material = res.data.data
-      }).catch(err=>{
-        console.log(err)
-      })
-
-      /**
-       *复杂功能
-       */
-      self.$http.get(`${process.env.API.DICT}/dict/function`).then(res=>{
-        self.functionss = res.data.data
-      }).catch(err=>{
-        console.log(err)
-      })
-
-      /**
-       * 地址获取
-       */
-      self.$http.get(`${process.env.API.DICT}/dict/area`,{params:{
-        kind:'all',
-        nonce:0.9064637705159901
-      }}).then(res=>{
-        if(res.data.length!=0) {
-          self.infoCity=res.data
-
-        }
-      }).catch(() => {
-
-      })
-      // 成色
-      self.$http.get(`${process.env.API.DICT}/dict/fineness`).then(res => {
-        self.fineness = res.data.data
-      }).catch(err => {
-        console.log(err)
-      })
-      // 品牌
-      self.$http.get(`${process.env.API.DICT}/dict/brand?is_pc=1`).then(res=>{
-        self.brand = res.data.data
-        let arr = []
-        for (let value in self.brand) {
-          arr[value]={
-            name:self.brand[value].name,
-            pid:self.brand[value].id
-          }
-          arr = arr.concat(self.brand[value].name)
-        }
-        self.brand = arr
-      }).catch(err=>{
-        console.log(err)
-      })
-      /**
-       * 银行卡
-       */
-      self.$http.get(`${process.env.API.USER}/user/bankcard`).then(res=>{
-        if(res.data.data.length>0){
+      self.httpFn(self.httpUrl.bankcardUrl,res=>{
+        if(res.data.errcode=="0"){
           for (let i = 0; i < res.data.data.length; i++) {
             res.data.data[i].cardnum = res.data.data[i].cardnum.substring(res.data.data[i].cardnum.length - 4)
           }
           self.yhCard=res.data.data;
         }
-      }).catch(()=>{
-
       })
-
-
-      self.$http.get(`${process.env.API.NEWS}/news/agreement`,{
-        params:{
-          name:'EXCHANGE'
-        }
-      }).then(res=>{
+      self.httpFn(self.httpUrl.EXCHANGEUrl,res=>{
         if(res.data.errcode=="0") {
           self.contentList=res.data.data
           res.data.data.publish_time = new Date(res.data.data.publish_time * 1000).toLocaleString('zh-cn').replace(/\//g, '-')
         }
-      }).catch(()=>{
-
       })
-
     },
-
-
-    components: {
-      Top,  //头部
-      Navs, //导航
-      Foot  //公共底部
-    },
-    watch: {
-
-
-    }
   }
 </script>
 <style lang="less" scoped type="text/less">
@@ -1033,7 +1008,6 @@
       min-height: 500px;
       padding: 50px 40px 60px;
       margin: 0 auto;
-      box-sizing: border-box;
       font-size: 14px;
       .title{
         display: flex;
@@ -1075,7 +1049,7 @@
                 width: 0;
                 height: 0;
                 right: 4px;
-                bottom: 0px;
+                bottom: 0;
                 border-left: 10px solid transparent;
                 border-right: 10px solid transparent;
                 border-bottom: 10px solid #666;
@@ -1107,8 +1081,8 @@
 
           }
         }
-
         .input{
+          position: relative;
           padding-top: 25px;
           line-height: 40px;
           display: flex;
@@ -1161,7 +1135,6 @@
             box-sizing: border-box;
             border:1px solid #ccc;
             padding: 0 10px;
-            /*color: #ccc;*/
           }
           ul{
             flex: 1;
@@ -1225,6 +1198,12 @@
               }
             }
           }
+          .checkboxMore{
+            position: absolute;
+            left: 5px;
+            top:42px;
+            color: #999;
+          }
         }
         .inputPos{
           position: relative;
@@ -1245,7 +1224,6 @@
             background: #fff;
             border: 1px solid #ccc;
             p{
-
               background-color: #f5f5f5;
               transition: all .4s;
               line-height: 28px;
@@ -1315,6 +1293,17 @@
                 }
               }
             }
+          }
+        }
+        .fileBuy{
+          height: 50px;
+          background: #ffefef;
+          line-height: 50px;
+          padding: 0 10px;
+          color: #695f5e;
+          overflow: hidden;
+          span{
+            color: #c8162e;
           }
         }
       }

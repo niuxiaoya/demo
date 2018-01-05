@@ -3,7 +3,7 @@
     <Top></Top>
     <!-- :num="0" -->
     <Navs ></Navs>
-    <div class="mian">
+    <div class="mainBox">
       <div class="left">
         <navList :nums="6"></navList>
       </div>
@@ -15,16 +15,16 @@
           <ul class="map">
             <li v-for="(item,index) in dataInfo" :class="{'active':default_active==index}" >
               <p>
-                <span>{{item.receiver}}</span>
-                <span>{{item.receiver_tel}}</span>
+                <span class="mapName">{{item.receiver}}</span>
+                <span class="telNomol">{{item.receiver_tel}}</span>
                 <button v-if="default_active==index">默认地址</button>
                 <!--<img src="" alt="">-->
               </p>
               <p>{{item.address}}</p>
               <div>
                 <span @click="radioShow(item,index)">设为默认</span>
-                <span @click="bianji(item)">编辑</span>
-                <span @click="delShow(item,index)">
+                <span @click.stop="bianji(item)">编辑</span>
+                <span @click.stop="delShow(item,index)">
                   删除
                 </span>
               </div>
@@ -40,10 +40,6 @@
   </div>
 </template>
 <script type="javascript">
-  import Top from '@/components/top'
-  import Navs from '@/components/nav'
-  import navList from '@/components/navList'
-  import Foot from '@/components/foot'
   export default {
     data(){
       return {
@@ -53,6 +49,7 @@
       }
     },
     mounted() {
+      document.title= '瑞时会-地址管理'
       let self=this;
       self.$http.get(`${process.env.API.USER}/user/address`).then(res=>{
         if(res.data.data.length>0){
@@ -65,6 +62,7 @@
     methods:{
       bianji(item){
         this.$router.push({name:'AddMap',params:item})
+
       },
       //改变默认地址
       radioShow(item,index){
@@ -107,40 +105,13 @@
         })
       }
     },
-    components: {
-      Top,  //头部
-      Navs, //导航
-      navList,
-      Foot  //公共底部
-    },
   }
 </script>
 <style lang="less" scoped type="text/less">
   .People{
-    .mian{
-      box-sizing:border-box;
-      max-width: 1200px;
-      min-width: 1000px;
-      padding: 0 10px;
-      margin: 0 auto;
-      box-sizing: border-box;
-      background: #fff;
-      min-height: 690px;
-      display: flex;
-      .left{
-        width: 200px;
-        padding-top: 55px;
-        border-right: 1px solid #f5f5f5;
-      }
+    .mainBox{
       .right{
-        padding: 60px;
-        box-sizing:border-box;
-        .title{
-          color: #333;
-          font-size: 24px;
-        }
         .maps{
-          /*padding: 0 30px;*/
           border-bottom: 1px solid #e6e6e6;
           .map{
             display: flex;
@@ -148,10 +119,9 @@
             li{
               cursor: pointer;
               position: relative;
-              width: 40%;
-              min-width: 290px;
+              width: 290px;
               margin-right: 30px;
-              max-width: 346px;
+              max-width: 340px;
               height: 134px;
               border: solid 1px #cccccc;
               margin-top: 30px;
@@ -159,6 +129,21 @@
               box-sizing: border-box;
               transition: all .4s;
               p{
+                .mapName{
+                  width: 64px;
+                  overflow: hidden;
+                  display: inline-flex;
+                  height: 20px;
+                }
+                &:nth-child(2){
+                  overflow : hidden;
+                  text-overflow: ellipsis;
+                  display: -webkit-box;
+                  -webkit-line-clamp: 2;
+                  -webkit-box-orient: vertical;
+                  height: 40px;
+
+                }
                 padding-top: 15px;
                 button{
                   width: 64px;
@@ -167,7 +152,7 @@
                   color: #ffffff;
                   border: none;
                   font-size: 14px;
-                  margin-left: 10px;
+                  margin-left: 5px;
                 }
                 span{
                   position: relative;
@@ -179,11 +164,9 @@
                 }
                 &:first-child{
                   font-weight: bold;
-                  span{
-                    &:last-child{
-                      font-weight: normal;
-                      padding-left: 30px;
-                    }
+                  .telNomol{
+                    font-weight: normal;
+                    left: 5px;
                   }
                 }
               }
@@ -214,7 +197,7 @@
                 right: 0;
                 bottom: 0;
                 top: 0;
-                background: url("../../assets/img/login/border.png") no-repeat;
+                /*background: url("../../assets/img/login/border.png") no-repeat;*/
                 background-size: 100% 100%;
               }
             }

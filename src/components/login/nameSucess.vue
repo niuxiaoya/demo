@@ -3,7 +3,7 @@
     <Top></Top>
     <!-- :num="0" -->
     <Navs ></Navs>
-    <div class="mian">
+    <div class="mainBox">
       <div class="left">
         <navList :nums="4"></navList>
       </div>
@@ -35,10 +35,6 @@
   </div>
 </template>
 <script type="javascript">
-  import Top from '@/components/top'
-  import Navs from '@/components/nav'
-  import navList from '@/components/navList'
-  import Foot from '@/components/foot'
   export default {
     data(){
       return {
@@ -52,7 +48,7 @@
       }
     },
     mounted() {
-
+      document.title= '瑞时会-实名认证'
     },
     methods:{
 
@@ -67,38 +63,12 @@
         console.log(err)
       })
     },
-    components: {
-      Top,  //头部
-      Navs, //导航
-      navList,
-      Foot  //公共底部
-    },
   }
 </script>
 <style lang="less" scoped type="text/less">
   .People{
-    .mian{
-      box-sizing:border-box;
-      max-width: 1200px;
-      min-width: 1000px;
-      padding: 0 10px;
-      margin: 0 auto;
-      box-sizing: border-box;
-      background: #fff;
-      min-height: 690px;
-      display: flex;
-      .left{
-        width: 200px;
-        padding-top: 55px;
-        border-right: 1px solid #f5f5f5;
-      }
+    .mainBox{
       .right{
-        padding: 60px;
-        box-sizing:border-box;
-        .title{
-          color: #333;
-          font-size: 24px;
-        }
         .info{
           .input{
             padding-top: 25px;

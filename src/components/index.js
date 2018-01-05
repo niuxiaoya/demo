@@ -1,13 +1,17 @@
-// import IdcmLeftMenu from '@/components/idcm-left-menu'
-// import Top from '@/components/Top'
-// import Foot from '@/components/Foot'
-//
-// // 导出组件
-// export default {
-//   install: function(Vue){
-//     Vue.component('idcm-left-menu',IdcmLeftMenu),    //  左侧菜单组件（资产与个人中心页面）
-//     Vue.component('head-top',Top)    //  公共头部
-//     Vue.component('public-foot',Foot)    //  公共底部
-//   }
-// }
+import Top from '@/components/top'
+import Navs from '@/components/nav'
+import Foot from '@/components/foot'
+import NoMore from '@/components/noneData'
+import navList from '@/components/navList'
+
+// 导出组件
+export default {
+  install: function(Vue){
+    Vue.component('Top',Top)    //  公共底部
+    Vue.component('Navs',Navs)    //  公共底部
+    Vue.component('Foot',Foot)    //  公共底部
+    Vue.component('no-more',NoMore)    //  公共底部
+    Vue.component('navList',navList)    //  公共底部
+  }
+}
 

@@ -16,9 +16,6 @@
               <span>0%</span>
             </div>
             <ol class="threesixty_images"></ol>
-            <!--<span style="position: absolute;top: 15px;right: 15px">-->
-            <!--< img src="../assets/images/market/360.png">-->
-            <!--</span>-->
           </div>
           <div class="img" v-if="dataList.file_pic && dataList.file_pic.length > 0&&navId>0">
             <img src="../../assets/img/buy/leftImg.png" class="leftImg" @click="leftTab(num)">
@@ -32,7 +29,6 @@
             </div>
             <div  class="pos" v-for="(item,index) in dataList.file_pic" :class="{'navActive':navId == index+1}" @click="tab(index+1)">
               <img :src="item">
-
             </div>
           </div>
         </div>
@@ -46,9 +42,8 @@
             </p>
           </div>
           <div class="button">
-            <!--<p @click="buy" class="buys" :class="{'btnss':this.dataList.exchange_stage_name=='已售'}">立即购买</p>-->
             <p @click="buy"  class="btnss" :class="{'buys':dataList.exchange_stage_name=='在售'|| dataList.exchange_stage_name=='售卖中'}">立即购买</p>
-            <p  @click="kefu">联系客服     <span> 0755-82714312</span></p>
+            <p  @click="kefu">联系电话：    <span> 400-8451-816</span></p>
           </div>
           <div class="map">
             <p><span>发货时间</span><span>5-15天</span></p>
@@ -118,9 +113,6 @@
   </div>
 </template>
 <script type="javascript">
-  import Top from '@/components/top'
-  import Navs from '@/components/nav'
-  import Foot from '@/components/foot'
   import ThreeSixty from '@/plugin/threesixty'
 
   export default {
@@ -134,10 +126,8 @@
         uid: ''
       }
     },
-//    created(){
-//      console.log(this.$route.query)
-//    },
     mounted() {
+      document.title= '瑞时会-直买'
       window.scrollTo(0,0)
         let self = this;
 //
@@ -178,21 +168,25 @@
     },
     methods: {
       kefu(){
-//        this.$alert('400-8451-816', {
-//          dangerouslyUseHTMLString: true
-//        });
+
+      },
+      /**
+       * 是否登陆
+       */
+      isLogin(){
+        this.$confirm('请登录后再进行操作！', '提示', {
+          confirmButtonText: '确定',
+          cancelButtonText: '取消',
+          type: 'warning'
+        }).then(() => {
+          this.$router.push(`/login`)
+        }).catch(() => {
+        });
       },
       buy() {
         if(!localStorage.getItem('Authorization')) {
-          this.$confirm('请登录后再进行形影操作！', '提示', {
-            confirmButtonText: '确定',
-            cancelButtonText: '取消',
-            type: 'warning'
-          }).then(() => {
-            this.$router.push(`/login`)
-          }).catch(() => {
-          });
-          return false;
+          this.isLogin()
+          return false
         }
         if(this.dataList.exchange_stage_name!="在售" &&this.dataList.exchange_stage_name!="售卖中"){
 //          return false;
@@ -220,7 +214,10 @@
       },
       collect(item) {
         let self = this;
-//        console.log(item)
+        if(!localStorage.getItem('Authorization')) {
+          this.isLogin()
+          return false;
+        }
         if (item.is_collect == 1) {
           self.$http.delete(`${process.env.API.USER}/user/collect`, {
             params: {
@@ -229,11 +226,11 @@
               type: 'goods'
             }
           }).then(res => {
-//            console.log(res.data)
             if (res.data.errcode == '0') {
               item.is_collect = 0
-            } else {
-              //self.$messagebox.alert(res.data.errmsg)
+            }
+            else {
+
             }
           }).catch(err => {
             console.log(err)
@@ -244,25 +241,16 @@
             publish_uid: self.uid,
             type: 'goods'
           }).then(res => {
-//            console.log(res.data)
             if (res.data.errcode == '0') {
               item.is_collect = 1
             } else {
-              //self.$messagebox.alert(res.data.errmsg)
+
             }
           }).catch(err => {
             console.log(err)
           })
         }
       }
-    },
-    created(){
-
-    },
-    components: {
-      Top,  //头部
-      Navs, //导航
-      Foot  //公共底部
     },
   }
 </script>
@@ -274,7 +262,6 @@
       min-width: 1000px;
       padding: 60px 0px 100px;
       margin: 0 auto;
-      box-sizing: border-box;
       background: #fff;
       min-height: 500px;
       .title {
@@ -329,8 +316,8 @@
               top: 50%;
               margin-top: -25px;
               cursor: pointer;
-              display: none;
-              transition: all .4s;
+              opacity: 0;
+              transition: all 1s;
             }
             .leftImg {
               left: 20px;
@@ -340,7 +327,7 @@
             }
             &:hover {
               .leftImg, .rightImg {
-                display: block;
+                opacity: 1;
               }
             }
             img {
@@ -518,7 +505,7 @@
         }
         .introduce {
           border-top: 1px solid #e6e6e6;
-          padding: 60px 187px 100px 32px;
+          padding: 60px 187px 100px 0;
           .tits {
             font-size: 24px;
             color: #333333;

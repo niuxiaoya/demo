@@ -2,26 +2,27 @@
   <div class="Information">
       <Top></Top>
       <Navs :num="4"></Navs>
-      <div class="mian">
+      <div class="mian" >
         <div class="title">
           资讯
           <div class="search"><input type="text" placeholder="输入标题或关键字" v-model="title" @keyup.enter="search()"><span class="imgs"><img src="../../assets/img/search.png" alt="" @click="search()"></span></div>
         </div>
-        <div class="info" v-for="item in dataList">
-          <dl @click="info(item)">
-            <dt>
-
+        <div v-show="dataList.length<=0&&loading" v-loading="loading" element-loading-text="加载中" style="height: 400px;"></div>
+        <div class="info" v-for="item,i in dataList" :key="i">
+          <div class="dl" @click="info(item)">
+            <div class="dt">
               <img :src="item.cover_pic?item.cover_pic:require('../../assets/img/vip/news.png')">
-            </dt>
-            <dd>
+            </div>
+            <div class="dd">
               <p>
                 {{item.title}}
               </p>
-              <span class="info-content" v-html="item.content"></span>
-            </dd>
-          </dl>
+              <span class="info-content" v-html="item.summary"></span>
+            </div>
+          </div>
         </div>
-        <div class="page"  v-show="isShow">
+        <no-more v-if="dataList.length <= 0 && !loading"></no-more>
+        <div class="page"  v-show="pagecount  && !loading">
             <!--<span class="item" @click="handlerPage(1)">首页</span>-->
             <el-pagination layout="prev,pager,next" :page-count="pagecount" @current-change="handlerPage"></el-pagination>
             <!--<span class="item" @click="handlerPage(pagecount)">尾页</span>-->
@@ -31,18 +32,15 @@
       <Foot></Foot>
   </div>
 </template>
-<script>
- import Top from '@/components/top'
- import Navs from '@/components/nav'
- import Foot from '@/components/foot'
+<script type="javascript">
   export default {
     data(){
       return {
-        pagecount:1,
+        pagecount:0,
         p:1,
         dataList:[],
         title:'',
-        isShow:false,
+        loading:true
       }
     },
     methods:{
@@ -54,6 +52,7 @@
           this.getList(val)
           this.p = val
           window.scrollTo(0,0)
+          this.dataList=[]
         }
       },
 
@@ -63,9 +62,9 @@
        * */
       getList(p) {
         let self=this;
+        self.loading=true
         let url = `${process.env.API.NEWS}/news/articlelist`    //  接口地址
-//        http://apidev.swisstimevip.com:8000/news/v1/news/articlelist?category_id=default&p=1&rows=10&is_pc=1
-       this.$http.get(url, {
+        this.$http.get(url, {
           params: {
             category_id:'default',
             is_pc:1,
@@ -74,32 +73,30 @@
             rows: 10 ,  //  每页多少条
             title: self.title,
           }
-        }).then(res => {
+         }).then(res => {
 
           this.pagecount = res.data.page.total_pages  //  总共多少页
-
           this.dataList = res.data.data
-         this.isShow=true
-       }).catch(() => {
+          self.loading=false
+         }).catch(() => {
           this.content = []
           this.p = 1
-//          this.currentPage1 = 1
+          self.dataList=[]
+          self.loading=false
+          self.pagecount=0
         })
       },
       info(item){
         this.$router.push(`/information/detail?id=${item.aid}`)
       },
       search(){
+        this.dataList=[]
         this.getList(1)
       }
     },
     mounted(){
+      document.title= '瑞时会-资讯'
       this.getList(1)
-    },
-    components: {
-      Top,  //头部
-      Navs, //导航
-      Foot  //公共底部
     },
   }
 </script>
@@ -163,7 +160,7 @@
         }
       }
       .info{
-        dl{
+        .dl{
           padding: 20px 30px;
           height: 290px;
           box-sizing:border-box;
@@ -173,17 +170,18 @@
           &:hover{
             background:#e6e6e6;
           }
-          dt{
-            height: 100%;
+          .dt{
+            height: 250px;
             width: 380px;
             padding-right: 30px;
             img{
               width: 380px;
-              height: 100%;
+              height: 250px;
               object-fit: cover;
             }
           }
-          dd{
+         .dd{
+           flex: 1;
             p{
               font-size: 16px;
               color: #333;
@@ -219,66 +217,6 @@
     overflow: hidden;
     img {
       display: none !important;
-    }
-  }
-  .Information{
-    .page{
-      .item{
-        font-size: 16px;
-        color: #666;
-        height: 16px;
-        line-height: 30px;
-        cursor: pointer;
-        i{
-          font-style: normal;
-        }
-      }
-      .el-pagination{
-        .btn-prev,.btn-next{
-          border: none!important;
-        }
-        .el-pager{
-          background: none;
-          .number,.btn-quicknext,.btn-quickprev{
-            border: none;
-            font-size: 16px;
-            color: #666;
-          }
-          .active{
-            color: #333;
-            background: none;
-            border: 1px solid #333;
-          }
-        }
-      }
-    }
-    .el-radio-group{
-      width: 100%;
-    }
-    .el-radio{
-      width: 48%;
-      padding-bottom: 18px;
-      margin-left: 0;
-      .is-checked{
-        .el-radio__inner{
-          background: none;
-          border: 1px solid #000;
-          &:after{
-            background: #000!important;
-          }
-        }
-      }
-    }
-    .el-checkbox{
-      width: 49%;
-      margin-left: 0;
-      padding-bottom: 18px;
-      .el-checkbox__inner{
-        background: #fff;
-        &:after{
-          border-color: #333;
-        }
-      }
     }
   }
 </style>

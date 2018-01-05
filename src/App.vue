@@ -11,7 +11,7 @@
     data() {
       return {
         accessToken: '',
-        idcm_page: false  //  是否是交易所页面
+        idcm_page: false,  //  是否是交易所页面
       }
     },
     created() {
@@ -27,6 +27,9 @@
           console.log(err)
         })
       }
+    },
+    methods:{
+
     },
     watch: {
       '$route' () {

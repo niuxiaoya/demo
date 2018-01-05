@@ -4,7 +4,6 @@ let branch = 'dev'    //  要推送的分支
 
 let http_url = ''
 let http_api = ''
-
 switch(branch) {
   case 'dev':
     http_url = 'http://wwwdev.swisstimevip.com:8000'

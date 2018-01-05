@@ -26,7 +26,11 @@ service.interceptors.request.use(function (config) {
     config.headers['RequestToken'] = AppDigest
     config.headers['ClientType'] = ClientType
     config.headers['ClientId'] = ClientId
-    // config.headers['HTTP_ACCEPT_LANGUAGE']="zh-cn"
+  }
+  if(config.url.indexOf('?')==-1){
+    config.url=config.url+`?is_pc=1`
+  }else if(config.url.indexOf('?')){
+    config.url=config.url+`&is_pc=1`
   }
   return config
 }, function (error) {
@@ -34,12 +38,21 @@ service.interceptors.request.use(function (config) {
   return Promise.reject(error)
 })
 
+// axios.interceptors.request.use(function (config) {    // 这里的config包含每次请求的内容
+//   if (store.getters.getToken) {
+//     config.headers.is_pc = 1;
+//   }
+//   return config;
+// }, function (err) {
+//   return Promise.reject(err);
+// })
+
 
 // 添加响应拦截器
 service.interceptors.response.use(function (response) {
   if (response.data.errcode == '40004' || response.data.errcode == '40023') {
-    localStorage.removeItem('Authorization')
-    window.location.href = `${process.env.URL.USER}/#/login`
+  localStorage.removeItem('Authorization')
+   window.location.href = `${process.env.URL.USER}/#/login`
   }
   return response
 }, function (error) {

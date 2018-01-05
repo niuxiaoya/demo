@@ -1,9 +1,10 @@
+<script src="../../../../vue-wanba/src/store/store.js"></script>
 <template>
   <div class="myBank">
     <Top></Top>
     <!-- :num="0" -->
     <Navs ></Navs>
-    <div class="mian">
+    <div class="mainBox">
       <div class="left">
         <navList :nums="5"></navList>
       </div>
@@ -14,7 +15,8 @@
         <ul class="card">
           <li v-for="item,index in dataInfo">
             <p>{{item.bank_name}}</p>
-            <p>{{item.cardnum}}</p>
+            <p>{{item.cardnum |filterFn }}</p>
+            <!--| filterFn-->
             <div><span>{{item.cardholder}}</span><span class="show"><b @click="bianji(item)">编辑</b>
               <b @click="delet(item,index)">
                 删除
@@ -33,18 +35,15 @@
   </div>
 </template>
 <script type="javascript">
-  import Top from '@/components/top'
-  import Navs from '@/components/nav'
-  import navList from '@/components/navList'
-  import Foot from '@/components/foot'
   export default {
     data(){
       return {
         dataList:"",
-        dataInfo:''
+        dataInfo:'',
       }
     },
     mounted() {
+      document.title= '瑞时会-银行管理'
       let self =this;
       self.$http.get(`${process.env.API.USER}/user/bankcard`).then(res=>{
         if(res.data.data.length>0){
@@ -77,36 +76,18 @@
         })
       }
     },
-    components: {
-      Top,  //头部
-      Navs, //导航
-      navList,
-      Foot  //公共底部
+    filters:{
+      filterFn(val){
+        return  val=val.substring(0,3)+" "+val.substring(3,6) +"******"+val.substr(-3)
+//
+      }
     },
   }
 </script>
-<style lang="less" scoped type="text/less">
+<style lang="less" type="text/less" scoped>
   .myBank{
-    .mian{
-      box-sizing:border-box;
-      max-width: 1200px;
-      min-width: 1000px;
-      padding: 0 10px;
-      margin: 0 auto;
-      box-sizing: border-box;
-      background: #fff;
-      min-height: 690px;
-      display: flex;
-      .left{
-        width: 200px;
-        padding-top: 55px;
-        border-right: 1px solid #f5f5f5;
-        box-sizing: border-box;
-      }
+    .mainBox{
       .right{
-        padding: 60px;
-        box-sizing:border-box;
-        width: 100%;
         .title{
           color: #333;
           font-size: 24px;

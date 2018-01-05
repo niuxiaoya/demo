@@ -96,9 +96,6 @@
   </div>
 </template>
 <script type="javascript">
-  import Top from '@/components/top'
-  import Navs from '@/components/nav'
-  import Foot from '@/components/foot'
   export default {
     data(){
       return {
@@ -146,27 +143,6 @@
             console.log(err)
           })
         }
-//          self.$http.delete(`${process.env.API.USER}/user/collect`,{params:{collect_id:self.$route.query.id,publish_uid:self.uid,type:'goods'}}).then(res => {
-//            console.log(res.data)
-//            if(res.data.errcode=='0'){
-//              item.is_collect = 0
-//            }else{
-//              //self.$messagebox.alert(res.data.errmsg)
-//            }
-//          }).catch(err => {
-//            console.log(err)
-//          })
-
-//          self.$http.post(`${process.env.API.USER}/user/collect`,{collect_id:self.$route.query.id,publish_uid:self.uid,type:'goods'}).then(res => {
-//            console.log(res.data)
-//            if(res.data.errcode=='0'){
-//              item.is_collect = 1
-//            }else{
-//              //self.$messagebox.alert(res.data.errmsg)
-//            }
-//          }).catch(err => {
-//            console.log(err)
-//          })
       },
       //删除地址
       delShow(item,index){
@@ -223,6 +199,7 @@
       },
     },
     mounted() {
+        document.title= '瑞时会-直买'
         window.scrollTo(0,0)
         let self=this;
       /**
@@ -252,11 +229,6 @@
       })
 
 
-    },
-    components: {
-      Top,  //头部
-      Navs, //导航
-      Foot  //公共底部
     },
   }
 </script>

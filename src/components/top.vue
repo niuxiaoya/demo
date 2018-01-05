@@ -13,12 +13,11 @@
     methods:{
       fn(){
          this.$router.push('/')
-      }
+      },
     },
     mounted(){
-
       document.title= '瑞时会-只珍藏顶级腕表和你'
-    }
+    },
   }
 </script>
 <style lang="less" scoped type="text/less">

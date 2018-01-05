@@ -3,7 +3,7 @@
     <Top></Top>
     <!-- :num="0" -->
     <Navs ></Navs>
-    <div class="mian">
+    <div class="mainBox">
       <div class="left">
         <navList :nums="4"></navList>
       </div>
@@ -12,6 +12,10 @@
           实名认证
         </div>
         <div class="info">
+          <div class="fileBuy" v-if="this.$route.query.id==2">
+            <span class="reds">失败原因：</span>
+            {{result}}
+          </div>
           <div class="input">
             <span>姓名</span>
             <input type="name" v-model="infoList.name" placeholder="请输入姓名">
@@ -24,14 +28,20 @@
             <span>证件正面照</span>
             <input type="file" @change="uploadImg($event, 1)" class="img">
             <img :src="front_url1" alt="">
+            <p class="uload" v-if="this.$route.query.id==2">
+              <span>重新上传</span>
+            </p>
           </div>
           <div class="input">
             <span></span>
             <input type="file" @change="uploadImg($event, 2)" class="img">
             <img :src="front_url2" alt="">
+            <p class="uload" v-if="this.$route.query.id==2">
+              <span>重新上传</span>
+            </p>
           </div>
           <div class="button">
-            <button @click="sub">提交</button>
+            <button @click="sub" v-if="isShow">提交</button>
           </div>
         </div>
       </div>
@@ -40,14 +50,13 @@
   </div>
 </template>
 <script type="javascript">
-  import Top from '@/components/top'
-  import Navs from '@/components/nav'
-  import navList from '@/components/navList'
-  import Foot from '@/components/foot'
   export default {
     data(){
       return {
         dataList:'',
+        dataLists:'',
+        isShow:true,
+        result:'',
         infoList:{
           name:'',
           card:'',
@@ -56,10 +65,12 @@
           front_fid:''
         },
         front_url1: require('@/assets/img/login/add1.png'),
-        front_url2: require('@/assets/img/login/add1.png')
+        front_url2: require('@/assets/img/login/add1.png'),
+        ifFile:false
       }
     },
     mounted() {
+      document.title= '瑞时会-实名认证'
       let self=this;
       self.$http.get(`${process.env.API.USER}/user/userinfo?nonce=0.9954606018503807`).then(res=>{
         if(res.data.data){
@@ -81,7 +92,6 @@
             if(type==1){
               that.front_url1 = URL.createObjectURL(file)
               that.infoList.back_fid=res.data.fileinfo.fid
-
             }else{
               that.front_url2 = URL.createObjectURL(file)
 
@@ -115,55 +125,69 @@
           this.$message.error("请上传您的证件照片");
           return false;
         }
-        self.$http.post(`${process.env.API.USER}/user/identify`,{
-            back_fid:self.infoList.back_fid,
-            front_fid:self.infoList.front_fid,
-            id_number:self.infoList.tel,
+        if(self.$route.query.id==2){
+          self.$http.put(`${process.env.API.USER}/user/identify`,{
+            back_fid:self.infoList.back_fid || self.back_fid,
+            front_fid:self.infoList.front_fid || self.front_fid,
+            id_number:self.infoList.card,
             realname:self.infoList.name
           }).then(res=>{
-          this.$message({
-            type: 'success',//success
-            message: "提交成功"
-          });
-          this.$router.push('/login/nameSucess')
-        }).catch(err=>{
+            this.$message({
+              type: 'success',//success
+              message: "提交成功"
+            });
+            this.$router.push('/login/nameSucess')
+          }).catch(err=>{
 
-        })
+          })
+          return false
+        }else if(self.$route.query.id==1){
+          self.$http.post(`${process.env.API.USER}/user/identify`,{
+            back_fid:self.infoList.back_fid,
+            front_fid:self.infoList.front_fid,
+            id_number:self.infoList.card,
+            realname:self.infoList.name
+          }).then(res=>{
+            this.$message({
+              type: 'success',//success
+              message: "提交成功"
+            });
+//          if(self.$router.query.id==1){
+//            this.$router.push('/login/name')
+//            window.reload()
+
+//          }
+            this.$router.push('/login/nameSucess')
+          }).catch(err=>{
+
+          })
+        }
 
       }
     },
-    components: {
-      Top,  //头部
-      Navs, //导航
-      navList,
-      Foot  //公共底部
+    created(){
+      let self=this
+      this.$http.get(`${process.env.API.USER}/user/identify`).then(res=>{
+        if(res.data.errcode=='0'){
+          self.dataLists=res.data.manage
+          self.infoList.name=self.dataLists.realname
+          self.infoList.back_fid=self.dataLists.back_fid
+          self.infoList.front_fid=self.dataLists.front_fid
+          self.infoList.card=self.dataLists.id_number
+          self.front_url1 = self.dataLists.back_pic
+          self.front_url2 = self.dataLists.front_pic
+          self.result = self.dataLists.audit_result
+        }
+      }).catch(err=>{
+        console.log(err)
+      })
     },
   }
 </script>
 <style lang="less" scoped type="text/less">
   .People{
-    .mian{
-      box-sizing:border-box;
-      max-width: 1200px;
-      min-width: 1000px;
-      padding: 0 10px;
-      margin: 0 auto;
-      box-sizing: border-box;
-      background: #fff;
-      min-height: 690px;
-      display: flex;
-      .left{
-        width: 200px;
-        padding-top: 55px;
-        border-right: 1px solid #f5f5f5;
-      }
+    .mainBox{
       .right{
-        padding: 60px;
-        box-sizing:border-box;
-        .title{
-          color: #333;
-          font-size: 24px;
-        }
         .info{
           .input{
             padding-top: 25px;
@@ -175,10 +199,11 @@
             }
             .img{
               position: absolute;
-              width: 202px;
+              width: 400px;
               height: 126px;
               margin-left: 88px;
               opacity: 0;
+              z-index: 10;
             }
             input{
               width: 338px;
@@ -197,6 +222,26 @@
               height: 126px;
               background: url("../../assets/img/login/add1.png");
             }
+            .uload{
+              background: none;
+              padding-left: 10px;
+              cursor: pointer;
+              span{
+                padding-top: 100px;
+                display: inline-block;
+                color: #959595;
+                position: relative;
+                &:after{
+                  position: absolute;
+                  content: '';
+                  width: 55px;
+                  height: 1px;
+                  background: #636363;
+                  bottom: 10px;
+                  left: calc(1%);
+                }
+              }
+            }
           }
           .button{
             padding: 60px 0 0 85px;
@@ -208,6 +253,18 @@
               font-size: 14px;
               border:none;
               cursor: pointer;
+            }
+          }
+          .fileBuy{
+            margin-top: 15px;
+            height: 50px;
+            background: #ffefef;
+            line-height: 50px;
+            padding: 0 10px;
+            color: #695f5e;
+            overflow: hidden;
+            span{
+              color: #c8162e;
             }
           }
         }
