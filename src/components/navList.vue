@@ -27,11 +27,15 @@ export default {
       dataList:''
     }
   },
+  created(){
+    sessionStorage.removeItem('buy-filter')
+  },
   mounted(){
     this.$http.get(`${process.env.API.USER}/user/userinfo`).then(res=>{
       if(res.data.errcode=='0'){
         this.is_auth_name=res.data.data.is_auth_name
         this.dataList=res.data.data
+
       }
     }).catch(err=>{
       console.log(err)

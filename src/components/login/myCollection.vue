@@ -1,6 +1,5 @@
 <template>
   <div class="People">
-    <Top></Top>
     <!-- :num="0" -->
     <Navs ></Navs>
     <div class="mainBox">
@@ -58,16 +57,14 @@
               </ul>
             </div>
           </div>
-          <div class="page" v-show="isShow">
+          <div class="page" v-show="pagecount && pagecount > 1 && !loading">
             <el-pagination layout="prev,pager,next" :page-count="pagecount" @current-change="handlerPage" :current-page="currentPage"></el-pagination>
             <span class="item">共   <span>{{pagecount}}</span>页</span>
           </div>
         </div>
         <no-more v-if="dataList.length<=0 && !loading"></no-more>
-        <!--<div  v-loading="loading" element-loading-text="加载中"></div>-->
       </div>
     </div>
-    <Foot></Foot>
   </div>
 </template>
 <script type="javascript">
@@ -166,10 +163,19 @@
         })
       },
       detailClick(item){
-        this.$router.push(`/buy/detail?id=${item.gid}`)
+        console.log(item.is_del)
+        if(item.is_del==1){
+          this.$message.error('已下架')
+          return false
+        }
+        this.$router.push(`/buy/detail?id=${item.gid}&fineness_id=${item.fineness_id}`)
       },
       detailClick2(item){
-        this.$router.push(`/information/detail?id=${item.aid}`)
+        if(item.is_del==1){
+          this.$message.error('已下架')
+          return false
+        }
+        this.$router.push(`/information/detail?id=${item.aid}&fineness_id=${item.fineness_id}`)
       },
     },
     mounted() {

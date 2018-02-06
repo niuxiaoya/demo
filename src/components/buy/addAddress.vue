@@ -1,6 +1,5 @@
 <template>
   <div class="Purchase">
-    <Top></Top>
     <Navs :num="1"></Navs>
     <div class="mian">
         <div class="title">
@@ -56,7 +55,6 @@
       </div>
 
     </div>
-    <Foot></Foot>
   </div>
 </template>
 <script type="javascript">
@@ -85,7 +83,7 @@
     },
     created(){
       let arr=[]
-      if(this.$route.params.city_name){
+      if(this.$route.params.address!=undefined){
         arr=this.$route.params.city_name.split("/")
         this.infoList.name= this.$route.params.receiver
         this.infoList.tel= this.$route.params.receiver_tel
@@ -93,6 +91,10 @@
         this.infoList.city= arr[1]
         this.infoList.qu=arr[2]
         this.infoList.map= this.$route.params.address
+
+        this.city_code=this.$route.params.city_code
+        this.dist_code=this.$route.params.dist_code
+        this.prov_code=this.$route.params.prov_code
       }
     },
     methods:{
@@ -114,38 +116,77 @@
           this.$message.error("请正确填写您的电话");
           return false
         }
-        if(!self.infoList.map){
-          this.$message.error("请填写您的邮箱");
-          return false;
-        }
-        if(!self.infoList.she ||!self.infoList.city ||!self.infoList.qu){
+        if(!self.infoList.she){
           this.$message.error("请填写您的收货地址");
           return false;
         }
-        self.$http.post(`${process.env.API.USER}/user/address`,{
-          address: self.infoList.map,
-          city_code: self.city_code,
-          dist_code: self.dist_code,
-          prov_code: self.prov_code,
-          is_default:1,
-          receiver: self.infoList.name,
-          receiver_tel: self.infoList.tel
-        }).then(res => {
-          if(res.data.errcode=='0'){
-            this.$message({
-              type: 'success',//success
-              message: "提交成功"
-            });
-            setTimeout(()=>{
-              window.history.back(-1);
-            },1000)
-
-          }else{
-            //self.$messagebox.alert(res.data.errmsg)
+        if(self.infoList.she){
+          if(self.infoList.she=='香港特别行政区' || self.infoList.she=='澳门特别行政区' || self.infoList.she=='台湾省'){
+            self.dist_code=''
+            self.city_code=''
+          }else if(!self.infoList.city ||!self.infoList.qu){
+            this.$message.error("请填写您的收货地址");
+            return false;
           }
-        }).catch(err => {
-          console.log(err)
-        })
+        }
+
+        if(!self.infoList.map){
+          this.$message.error("请填写您的详细地址");
+          return false;
+        }
+        if(this.$route.params.address!=undefined){
+          self.$http.put(`${process.env.API.USER}/user/address`,{
+            address: self.infoList.map,
+            city_code: self.city_code,
+            dist_code: self.dist_code,
+            prov_code: self.prov_code,
+            is_default:1,
+            receiver: self.infoList.name,
+            receiver_tel: self.infoList.tel,
+            id:this.$route.params.id
+          }).then(res => {
+            if(res.data.errcode=='0'){
+              this.$message({
+                type: 'success',//success
+                message: "提交成功"
+              });
+              setTimeout(()=>{
+                window.history.back(-1);
+              },1000)
+
+            }else{
+              //self.$messagebox.alert(res.data.errmsg)
+            }
+          }).catch(err => {
+            console.log(err)
+          })
+        }else{
+          self.$http.post(`${process.env.API.USER}/user/address`,{
+            address: self.infoList.map,
+            city_code: self.city_code,
+            dist_code: self.dist_code,
+            prov_code: self.prov_code,
+            is_default:1,
+            receiver: self.infoList.name,
+            receiver_tel: self.infoList.tel
+          }).then(res => {
+            if(res.data.errcode=='0'){
+              this.$message({
+                type: 'success',//success
+                message: "提交成功"
+              });
+              setTimeout(()=>{
+                window.history.back(-1);
+              },1000)
+
+            }else{
+              //self.$messagebox.alert(res.data.errmsg)
+            }
+          }).catch(err => {
+            console.log(err)
+          })
+        }
+
       },
       sel(item){
         this.infoList.she=item.name;

@@ -24,7 +24,7 @@
     mounted(){
       //      banner请求
       this.$http.get(`${process.env.API.SYSTEM}/system/ad`).then(res=>{
-        if(res.data.data.length!=0){
+        if(parseInt(res.data.errcode)==0){
           this.banners=res.data.data;
         }
       }).catch(err=>{

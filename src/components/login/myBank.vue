@@ -1,7 +1,6 @@
 <script src="../../../../vue-wanba/src/store/store.js"></script>
 <template>
   <div class="myBank">
-    <Top></Top>
     <!-- :num="0" -->
     <Navs ></Navs>
     <div class="mainBox">
@@ -31,7 +30,6 @@
         </ul>
       </div>
     </div>
-    <Foot></Foot>
   </div>
 </template>
 <script type="javascript">
@@ -46,7 +44,7 @@
       document.title= '瑞时会-银行管理'
       let self =this;
       self.$http.get(`${process.env.API.USER}/user/bankcard`).then(res=>{
-        if(res.data.data.length>0){
+        if(parseInt(res.data.errcode)==0){
           self.dataInfo=res.data.data;
 //          console.log(self.dataInfo)
         }

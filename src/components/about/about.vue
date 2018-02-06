@@ -1,12 +1,10 @@
 <template>
   <div class="About">
-      <Top></Top>
       <Navs :num="5"></Navs>
       <div style="min-height: 500px">
         <div class="BannerImgs" v-for="item in content" v-html="item.content">
         </div>
       </div>
-      <Foot></Foot>
   </div>
 </template>
 <script>
@@ -22,7 +20,9 @@
       let self=this;
       this.$http.get(self.aboutUrl)
      .then(res=>{
-       this.content=res.data.data
+       if(res.data.errcode=='0'){
+         this.content=res.data.data
+       }
       }).catch(() => {
 
       })

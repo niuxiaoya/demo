@@ -9,7 +9,6 @@
         <img src="../../assets/img/buy/liucheng.png">
       </div>
     </div>
-    <Top></Top>
     <Navs :num="2"></Navs>
     <div class="mian">
       <div class="title">
@@ -29,7 +28,7 @@
           <div class="input inputPos">
             <span>腕表品牌 </span>
             <div class="selInputs">
-              <input type="text" v-model="infoList.brand" placeholder="选择一个品牌"@click="isBrand=!isBrand" readonly>
+              <input type="text" v-model="infoList.brand" placeholder="选择一个品牌" @click="isBrand=!isBrand" readonly>
             </div>
             <div class="select" v-if="isBrand">
               <p v-for="item in brand" @click="brandClick(item)">
@@ -48,9 +47,6 @@
           <textarea name="text" id="" cols="30" rows="10" placeholder="请输入标题、品牌、型号(必填，500字以内)" v-model="postData.details"></textarea>
         </div>
         <div class="tit">
-          <!--<div class="titPost">-->
-            <!--支付方式 <span>(最多可上传10张)</span>-->
-          <!--</div>-->
           <div class="payList">
             <ul>
               <li>
@@ -270,7 +266,7 @@
           <div class="input inputPos">
             <span>银行卡 </span>
             <div class="selInputs">
-              <input type="text" v-model="infoList.card" placeholder="请选择"@click="isCardClick" readonly>
+              <input type="text" v-model="infoList.card" placeholder="请选择" @click="isCardClick" readonly>
             </div>
             <div class="select" v-if="isCard">
               <p v-for="item in yhCard" @click="cardClick(item)">
@@ -289,14 +285,14 @@
           <div class="input">
             <span>原价 </span>
             <input type="number" v-model="postData.original_price" placeholder="0">
-            万
+            USD
           </div>
         </div>
         <div class="inlin">
           <div class="input">
             <span>售价 </span>
-            <input type="number" v-model="postData.price" placeholder="不能低于0.1">
-            万
+            <input type="number" v-model="postData.price" placeholder="0">
+            USD
           </div>
         </div>
         <div class="button">
@@ -321,13 +317,13 @@
 
       </div>
     </div>
-    <Foot></Foot>
   </div>
 </template>
 <script type="javascript">
   export default {
     data(){
       return {
+        num:2,
         remark:'',
         ifFile:false,
         uploadUrl:`${process.env.API.USER}/user/upload`,
@@ -399,6 +395,7 @@
             name: '中性',
           },
         ],//性别
+        ifBrandCard:0,
         movement:'',//机芯类型
         material:'',//表壳材质
         shape:'',//表盘形状
@@ -445,7 +442,7 @@
        }
        let self =this;
        self.postData.file_id=""
-       self.$http.get(`${process.env.API.MARKET}/market/seller/republishinfo?gid=${this.$route.query.gid}`).then(res => {
+       self.$http.get(`${process.env.API.MARKET}/v2/market/seller/republishinfo?gid=${this.$route.query.gid}`).then(res => {
          if (res.data.errcode == '0') {
            self.infoList.brand = res.data.data.brand_name //品牌名字
 
@@ -455,12 +452,14 @@
            self.postData.title = res.data.data.title//标题
            self.postData.gender = res.data.data.gender //性别
            self.postData.material_id = res.data.data.material_id //材质
-           self.postData.original_price = res.data.data.original_price.split("￥")[1]/10000//原价
-           self.postData.price = res.data.data.price.split("￥")[1]/10000//售价
+           self.postData.original_price = res.data.data.original_price.split("$")[1]//原价
+           self.postData.price = res.data.data.price.split("$")[1]//售价
            self.postData.cover = res.data.data.cover_fid//售价
            self.postData.movement_id = res.data.data.movement_id //机芯
            self.postData.fineness_id = res.data.data.fineness_id//成色id
            self.postData.bankcard_id = res.data.data.user_bankcard_id//银行卡id
+//          self.infoList.card = res.data.data.remark//银行卡
+//          self.infoList.cardUser = res.data.data.publish_user//银行卡
            for (let b = 0; b < self.infoList.length; b++) {
              if (self.infoList[b].id == self.postData.bankcard_id) {
                self.bank = `${self.infoList[b].bank_name}(${self.infoList[b].cardnum})`
@@ -487,6 +486,7 @@
            for (let b = 0; b < self.yhCard.length; b++) {
              if (self.yhCard[b].id == self.postData.bankcard_id) {
                self.infoList.card = `${self.yhCard[b].bank_name}(${self.yhCard[b].cardnum})`
+//              =item.bank_name+"("+item.cardnum+")";
              }
            }
 
@@ -557,7 +557,7 @@
       },
       brandClick(item){
         this.infoList.brand=item.name;
-        this.postData.brand_id=item.pid;
+        this.postData.brand_id=item.id;
         this.isBrand=!this.isBrand;
       },
       finenessClick(item){
@@ -678,7 +678,7 @@
           this.postData.cover = res.fileinfo.fid
           this.imgData[type] = res.fileinfo.fid
         } else {
-          this.$message.error(res.errmsg);
+//          this.$toast(res.errmsg)
         }
       },
       successImg1(res, file) {
@@ -751,15 +751,25 @@
           this.$message.error("阅读并同意《在线寄售协议》");
           return false;
         }
-        if(!self.infoList.she ||!self.infoList.city ||!self.infoList.qu){
-          this.$message.error("请填写您的收货地址");
+        if(!self.infoList.she){
+          this.$message.error("请填写您的所在地");
           return false;
+        }
+        if(self.infoList.she){
+          if(self.infoList.she=='香港特别行政区' || self.infoList.she=='澳门特别行政区' || self.infoList.she=='台湾省'){
+            self.dist_code=''
+            self.city_code=''
+          }else if(!self.infoList.city ||!self.infoList.qu){
+            this.$message.error("请填写您的所在地");
+            return false;
+          }
         }
 
         if(!self.infoList.fineness_id){
           this.$message.error("请选择成色");
           return false;
-        } if(!self.infoList.card){
+        }
+        if(!self.infoList.card){
           this.$message.error("请选择银行卡");
           return false;
         }
@@ -771,20 +781,20 @@
           this.$message.error("请填写表盘直径");
           return false;
         }
-        if(self.postData.original_price<=0){
-          this.$message.error("请正确填写原价");
-          return false;
-        }
         if(!self.postData.original_price){
           this.$message.error("请填写原价");
           return false;
         }
-        if(self.postData.price<=0){
-          this.$message.error("请正确填写售价");
+        if(self.postData.original_price<=0){
+          this.$message.error("请正确填写原价");
           return false;
         }
         if(!self.postData.price){
           this.$message.error("请填写售价");
+          return false;
+        }
+        if(self.postData.price<=0){
+          this.$message.error("请正确填写售价");
           return false;
         }
         self.imgData=self.imgData
@@ -804,15 +814,20 @@
           location:self.infoList.she,
           material_id:self.postData.material_id,
           movement_id:self.postData.movement_id,
-          original_price:self.postData.original_price*10000,
-          price:self.postData.price*10000,
+          original_price:self.postData.original_price,
+          price:self.postData.price,
           prov_code:self.prov_code,
           shape_id:self.postData.shape_id,
           title:self.postData.title,
-          gid:self.$route.query.gid || '',
+          gid:self.$route.query.gid || null,
         }
+//        self.$http.get(`${process.env.API.USER}/user/userinfo?nonce=0.9954606018503807`).then(res=>{
+//          console.log()
+//        }).catch(err=>{
+//
+//        })
         if(self.$route.query.gid!=undefined){
-          self.$http.put(`${process.env.API.MARKET}/market/seller/publish`,postDatas).then(res => {
+          self.$http.put(`${process.env.API.MARKET}/v2/market/seller/publish`,postDatas).then(res => {
             if(res.data.errcode=='0'){
               this.$message({
                 type: 'success',//success
@@ -829,7 +844,7 @@
           return false
         }
         if(self.$route.query.gid==undefined){
-          self.$http.post(`${process.env.API.MARKET}/market/seller/publish`,postDatas).then(res => {
+          self.$http.post(`${process.env.API.MARKET}/v2/market/seller/publish`,postDatas).then(res => {
             if(res.data.errcode=='0'){
               this.$message({
                 type: 'success',//success
@@ -884,19 +899,24 @@
         self.infoCity=res.data
       })
       self.httpFn(self.httpUrl.brandUrl,res=>{
+
         self.brand = res.data.data
-        let arr = []
-        for (let value in self.brand) {
-          arr[value]={
-            name:self.brand[value].name,
-            pid:self.brand[value].id
-          }
-          arr = arr.concat(self.brand[value].name)
-        }
-        self.brand = arr
+//        let arr = []
+//        for (let value in self.brand) {
+//          for(let item in self.brand[value].list){
+//            arr[item] = {
+//              id: self.brand[value].initial,
+//              name: self.brand[value].list[item].name,
+//              pid: self.brand[value].list[item].id,
+//            }
+//            arr = arr.concat(arr[item])
+//          }
+//        }
+//        self.brand = arr
       })
       self.httpFn(self.httpUrl.bankcardUrl,res=>{
         if(res.data.errcode=="0"){
+          self.ifBrandCard=res.data.data.length;
           for (let i = 0; i < res.data.data.length; i++) {
             res.data.data[i].cardnum = res.data.data[i].cardnum.substring(res.data.data[i].cardnum.length - 4)
           }
@@ -1308,5 +1328,24 @@
         }
       }
     }
+  }
+</style>
+<style type="text/less" lang="less">
+  .el-dropdown-menu__item ,#clearhui{
+    border-bottom: 1px solid #ececec;
+    width: 200px;
+    line-height: 40px;
+    padding: 0 20px;
+    box-sizing: border-box;
+  }
+  .el-button--primary{
+    background: #333!important;
+    border: none;
+    span{
+      color: #fff;
+    }
+  }
+  .el-button{
+    border-radius: 0;
   }
 </style>

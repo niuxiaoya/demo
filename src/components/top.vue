@@ -1,7 +1,7 @@
 <template>
   <div class="top">
       <div class="img">
-        <img src="../assets/img/logos.png" alt="" @click="fn">
+        <img src="../assets/img/logoNews.png" alt="" @click="fn">
       </div>
   </div>
 </template>

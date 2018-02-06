@@ -1,6 +1,5 @@
 <template>
   <div class="Purchase">
-    <Top></Top>
     <Navs :num="1"></Navs>
     <div class="mian">
         <div class="title">
@@ -10,8 +9,8 @@
           <ul class="map">
             <li v-for="(item,index) in dataInfo" :class="{'active':default_active==index}" >
               <p>
-                <span>{{item.receiver}}</span>
-                <span>{{item.receiver_tel}}</span>
+                <span class="mapName">{{item.receiver}}</span>
+                <span class="telNomol">{{item.receiver_tel}}</span>
                 <button v-if="default_active==index">默认地址</button>
                 <!--<img src="" alt="">-->
               </p>
@@ -92,7 +91,6 @@
         </div>
       </div>
     </div>
-    <Foot></Foot>
   </div>
 </template>
 <script type="javascript">
@@ -167,7 +165,7 @@
           this.$message.error("请选择收货地址");
           return false
         }
-        self.$http.post(`${process.env.API.MARKET}/market/buyer/order`,{
+        self.$http.post(`${process.env.API.MARKET}/v2/market/buyer/order`,{
           address_id:self.datas.id,
           delivery_method:self.postData.delivery_method,
           gid:this.$route.query.id,
@@ -206,8 +204,10 @@
        * 地址信息
        */
       self.$http.get(`${process.env.API.USER}/user/address`).then(res=>{
-          if(res.data.data.length>0){
-            self.dataInfo=res.data.data
+          if(parseInt(res.data.errcode)==0) {
+            if (res.data.data.length > 0) {
+              self.dataInfo = res.data.data
+            }
           }
         }).catch(error=>{
 
@@ -215,7 +215,7 @@
       /**
        * 商品信息
        */
-      self.$http.get(`${process.env.API.MARKET}/market/buyer/orderplace`,{
+      self.$http.get(`${process.env.API.MARKET}/v2/market/buyer/orderplace`,{
         params:{
           gid:this.$route.query.id
         }
@@ -259,9 +259,8 @@
          li{
            cursor: pointer;
            position: relative;
-           width: 29.8%;
+           width: 300px;
            margin-right: 30px;
-           max-width: 346px;
            height: 137px;
            border: solid 1px #cccccc;
            margin-top: 30px;
@@ -270,6 +269,12 @@
            transition: all .4s;
            p{
              padding-top: 15px;
+              .mapName{
+               width: 64px;
+               overflow: hidden;
+               display: inline-flex;
+               height: 20px;
+             }
              button{
                width: 64px;
                height: 17px;
@@ -281,11 +286,9 @@
              }
              &:first-child{
                font-weight: bold;
-               span{
-                 &:last-child{
-                   font-weight: normal;
-                   padding-left: 30px;
-                 }
+               .telNomol{
+                 font-weight: normal;
+                 left: 5px;
                }
              }
            }

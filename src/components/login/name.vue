@@ -1,6 +1,5 @@
 <template>
   <div class="People">
-    <Top></Top>
     <!-- :num="0" -->
     <Navs ></Navs>
     <div class="mainBox">
@@ -46,7 +45,6 @@
         </div>
       </div>
     </div>
-    <Foot></Foot>
   </div>
 </template>
 <script type="javascript">

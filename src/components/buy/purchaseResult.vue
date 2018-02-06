@@ -1,6 +1,6 @@
+<script src="../../../config/common.js"></script>
 <template>
   <div class="Purchases">
-    <Top></Top>
     <Navs :num="1"></Navs>
     <div class="mian">
         <div class="title">
@@ -52,15 +52,14 @@
       <div class="btns">
         <div>
           <span>订单金额</span>
-          <span>￥1000000.00</span>
+          <span>{{dataList.price}}</span>
         </div>
-        <div v-show="isTrue">
+        <div v-show="isTrue &&$route.query.fineness_id!=8"  >
           <span @click="sub(1)">立即支付</span>
           <span @click="sub(2)">取消订单</span>
         </div>
       </div>
     </div>
-    <Foot></Foot>
   </div>
 </template>
 <script type="javascript">
@@ -122,19 +121,19 @@
       //提交
       tijiao(){
         let self=this;
-        this.$router.push(`/buy/prove?gid=${self.dataList.gid}&id=${self.dataList.bill_sn}&defult=${self.dataList.pay_method}`)
+        this.$router.push(`/buy/prove?gid=${self.dataList.gid}&id=${self.dataList.bill_sn}&defult=${self.dataList.pay_method}&fineness_id=${self.dataList.fineness_id}`)
 
       },
       //删除
       cencelPid(){
         let self=this;
-        self.$http.put(`${process.env.API.MARKET}/market/buyer/order?id=${self.$route.query.id}`).then(res=>{
+        self.$http.put(`${process.env.API.MARKET}/v2/market/buyer/order?id=${self.$route.query.id}`).then(res=>{
           if(res.data.errcode=="0"){
             this.$message({
               type: 'success',
               message: "删除成功"
             });
-            self.$router.push("/buy")
+            self.$router.push(`/buy`)
           }
           else{
             this.$message.error("删除失败");
@@ -151,7 +150,7 @@
       /**
        * 商品信息
        */
-      self.$http.get(`${process.env.API.MARKET}/market/buyer/orderdetails`,{
+      self.$http.get(`${process.env.API.MARKET}/v2/market/buyer/orderdetails`,{
         params:{
           id:this.$route.query.id
         }
@@ -164,7 +163,6 @@
       }).catch(error=>{
 
       })
-
 
     },
   }
@@ -457,6 +455,5 @@
   .el-radio__label{
     display: none;
   }
-
 }
 </style>

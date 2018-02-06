@@ -1,6 +1,5 @@
 <template>
   <div class="myBuy">
-    <Top></Top>
     <!-- :num="0" -->
     <Navs></Navs>
     <div class="mainBox">
@@ -40,7 +39,7 @@
                   <span>{{item.price}}</span>
                   <span class="yellow">待付款</span>
                   <span class="last">
-                    <p class="postZf" @click.stop="pstZhfu(item)">立即支付</p>
+                    <p class="postZf" @click.stop="pstZhfu(item)" v-if="item.fineness_id!=8">立即支付</p>
                     <!--<p @click="delet(item,1)"><img src="../../assets/img/login/del.png" @click="cencelPid(item)"></p>-->
                   </span>
                 </li>
@@ -128,7 +127,7 @@
               </ul>
             </div>
           </div>
-          <div class="page" v-show="isShow">
+          <div class="page" v-show="pagecount && pagecount > 1 && !loading">
             <el-pagination layout="prev,pager,next" :page-count="pagecount" @current-change="handlerPage" :current-page="currentPage"></el-pagination>
             <span class="item">共   <span>{{pagecount}}</span>页</span>
           </div>
@@ -139,7 +138,6 @@
         <!--</div>-->
       </div>
     </div>
-    <Foot></Foot>
   </div>
 </template>
 <script type="javascript">
@@ -207,7 +205,8 @@
         self.dataList=[];
         self.loading=true;
         this.isShow=false
-        this.$http.get(`${process.env.API.MARKET}/market/buyer/order`,{params:{
+        this.p=1;
+        this.$http.get(`${process.env.API.MARKET}/v2/market/buyer/order`,{params:{
           p: p,     //  页码
           rows: 10,
           process:self.process,
@@ -225,13 +224,14 @@
           this.isShow=false
           self.dataList=[]
           self.loading=false;
+          self.pagecount=0;
         })
       },
       delet(item,index,i){
         let self = this;
         switch (i){
           case i:
-            self.$http.delete(`${process.env.API.MARKET}/market/buyer/order`,{
+            self.$http.delete(`${process.env.API.MARKET}/v2/market/buyer/order`,{
               params:{
                 id:item.bill_sn
               }
@@ -251,11 +251,11 @@
         }
       },
       pstZhfu(item){
-        this.$router.push(`/buy/prove?gid=${item.goods_gid}&id=${item.bill_sn}&defult=${item.pay_method}`)
+        this.$router.push(`/buy/prove?gid=${item.goods_gid}&id=${item.bill_sn}&defult=${item.pay_method}&fineness_id=${item.fineness_id}`)
       },
       cencelPid(item){
         let self=this;
-        self.$http.put(`${process.env.API.MARKET}/market/buyer/order`,{
+        self.$http.put(`${process.env.API.MARKET}/v2/market/buyer/order`,{
             id:item.bill_sn
         }).then(res=>{
           this.$message({
@@ -274,7 +274,7 @@
           cancelButtonText: '取消',
           type: 'warning'
         }).then(() => {
-          self.$http.put(`${process.env.API.MARKET}/market/buyer/received`,{
+          self.$http.put(`${process.env.API.MARKET}/v2/market/buyer/received`,{
             bill_sn:item.bill_sn
           }).then(res=>{
             if(res.data.errcode=="0"){
@@ -293,7 +293,7 @@
       },
       buyDetail(i,item){
         if(i==1){
-          this.$router.push(`/buy/purchaseResult?id=${item.bill_sn}&item=1`)
+          this.$router.push(`/buy/purchaseResult?id=${item.bill_sn}&item=1&fineness_id=${item.fineness_id}`)
           return false
         }
         this.$router.push(`/buy/purchaseResult?id=${item.bill_sn}`)
@@ -307,7 +307,7 @@
         this.$route.query.id=1
       }
       self.fn(Number(this.$route.query.id))
-        self.info(Number(this.$route.query.id))
+//        self.info(Number(this.$route.query.id))
     },
   }
 </script>

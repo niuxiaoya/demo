@@ -24,14 +24,15 @@ service.interceptors.request.use(function (config) {
     config.headers['Authorization'] = localStorage.getItem('Authorization')
   } else {
     config.headers['RequestToken'] = AppDigest
-    config.headers['ClientType'] = ClientType
     config.headers['ClientId'] = ClientId
   }
-  if(config.url.indexOf('?')==-1){
-    config.url=config.url+`?is_pc=1`
-  }else if(config.url.indexOf('?')){
-    config.url=config.url+`&is_pc=1`
-  }
+  config.headers['ClientType'] = 5
+ // config.headers['is_pc'] = 1
+  // if(config.url.indexOf('?')==-1){
+  //   config.url=config.url+`?is_pc=1`
+  // }else if(config.url.indexOf('?')){
+  //   config.url=config.url+`&is_pc=1`
+  // }
   return config
 }, function (error) {
   // 对请求错误做些什么

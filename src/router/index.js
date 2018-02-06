@@ -3,6 +3,7 @@ import Router from 'vue-router'
 import Index from '@/pages/index'
 import Buy from '@/components/buy/buy'  //直买
 import BuyDetail from '@/components/buy/detail'  //直买详情
+import Guarantee from '@/components/buy/guarantee'  //直买详情买家保障
 import Purchase from '@/components/buy/purchase'  //购买详情
 import PurchaseResult from '@/components/buy/purchaseResult'  //购买详情
 import AddAddress from '@/components/buy/addAddress'  //添加地址
@@ -35,6 +36,7 @@ import Lodding from '@/components/lodding'
 Vue.use(Router)
 
 export default new Router({
+  // mode:'history',
   routes: [
     {
       path: '/',
@@ -50,6 +52,11 @@ export default new Router({
       path: '/buy/detail',
       name: 'BuyDetail',
       component: BuyDetail
+    },
+    {
+      path: '/buy/guarantee',
+      name: 'Guarantee',
+      component: Guarantee
     },
     {
       path: '/buy/addAddress',

@@ -1,6 +1,5 @@
 <template>
   <div class="setPeople">
-    <Top></Top>
     <!-- :num="0" -->
     <Navs ></Navs>
     <div class="mainBox">
@@ -47,7 +46,6 @@
         </div>
       </div>
     </div>
-    <Foot></Foot>
   </div>
 </template>
 <script type="javascript">
@@ -77,7 +75,7 @@
           }
         ],
         isSex:false,
-        front_url1: require('@/assets/img/people.png'),
+        front_url1: require('@/assets/img/login/photo.png'),
 //        self.dataList.avatar_pic||
       }
     },

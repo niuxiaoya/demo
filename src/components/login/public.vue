@@ -1,6 +1,5 @@
 <template>
   <div class="People">
-    <Top></Top>
     <!-- :num="0" -->
     <Navs ></Navs>
     <div class="mainBox">
@@ -48,7 +47,7 @@
 
             </li>
           </ul>
-          <div class="page" v-show="isShow">
+          <div class="page" v-show="pagecount && pagecount > 1&& !loading">
             <el-pagination layout="prev,pager,next" :page-count="pagecount" @current-change="handlerPage" :current-page="currentPage"></el-pagination>
             <span class="item">共   <span>{{pagecount}}</span>页</span>
           </div>
@@ -56,7 +55,6 @@
         </div>
       </div>
     </div>
-    <Foot></Foot>
   </div>
 </template>
 <script type="javascript">
@@ -71,6 +69,9 @@
         p:1,
         loading:true
       }
+    },
+    created(){
+//      console.log(config)
     },
     methods:{
       /**
@@ -89,7 +90,7 @@
         self.dataList='';
         this.isShow=false
         self.loading=true
-        self.$http.get(`${process.env.API.MARKET}/market/seller/mylist`,{
+        self.$http.get(`${process.env.API.MARKET}/v2/market/seller/mylist`,{
           params:{
             rows:10,
             type:'goods',
@@ -104,19 +105,19 @@
             this.isShow=true
             this.p=res.data.page.p
             this.pagecount = parseInt(res.data.page.total_pages)  //  总共多少页
-            self.loading=false
           }
+          self.loading=false
         }).catch(()=>{
           this.p = 1
           this.isShow=false
           self.dataList=[]
           self.loading=false
+          this.pagecount=0
         })
-
       },
       delet(item,index){
         let self =this;
-        self.$http.delete(`${process.env.API.MARKET}/market/seller/mylist`,{
+        self.$http.delete(`${process.env.API.MARKET}/v2/market/seller/mylist`,{
           params:{
             gid:item.gid
           }

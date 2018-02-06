@@ -1,11 +1,10 @@
 <template>
   <div class="Information">
-      <Top></Top>
       <Navs :num="4"></Navs>
       <div class="mian" >
         <div class="title">
           资讯
-          <div class="search"><input type="text" placeholder="输入标题或关键字" v-model="title" @keyup.enter="search()"><span class="imgs"><img src="../../assets/img/search.png" alt="" @click="search()"></span></div>
+          <div class="search"><input type="text" placeholder="输入标题或关键字" v-model="title" @keyup.enter.stop="search()"><span class="imgs"><img src="../../assets/img/search.png" alt="" @click.stop="search()"></span></div>
         </div>
         <div v-show="dataList.length<=0&&loading" v-loading="loading" element-loading-text="加载中" style="height: 400px;"></div>
         <div class="info" v-for="item,i in dataList" :key="i">
@@ -22,14 +21,13 @@
           </div>
         </div>
         <no-more v-if="dataList.length <= 0 && !loading"></no-more>
-        <div class="page"  v-show="pagecount  && !loading">
+        <div class="page"  v-show="pagecount && pagecount>1  && !loading">
             <!--<span class="item" @click="handlerPage(1)">首页</span>-->
             <el-pagination layout="prev,pager,next" :page-count="pagecount" @current-change="handlerPage"></el-pagination>
             <!--<span class="item" @click="handlerPage(pagecount)">尾页</span>-->
             <span class="item">页数  <i>{{ p }}</i> / <i>{{pagecount}}</i></span>
         </div>
       </div>
-      <Foot></Foot>
   </div>
 </template>
 <script type="javascript">
@@ -67,17 +65,17 @@
         this.$http.get(url, {
           params: {
             category_id:'default',
-            is_pc:1,
 //            keyword: this.keyword,
             p: p,     //  页码
             rows: 10 ,  //  每页多少条
             title: self.title,
           }
          }).then(res => {
-
-          this.pagecount = res.data.page.total_pages  //  总共多少页
-          this.dataList = res.data.data
-          self.loading=false
+          if(parseInt(res.data.errcode)==0) {
+            this.pagecount = res.data.page.total_pages  //  总共多少页
+            this.dataList = res.data.data
+            self.loading = false
+          }
          }).catch(() => {
           this.content = []
           this.p = 1

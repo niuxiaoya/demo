@@ -1,6 +1,6 @@
 <template>
   <div class="foot">
-    <div class="img">
+    <div class="img" @click="$router.push('/')">
       <img src="../assets/img/logo.png" alt="">
     </div>
     <p class="p">粤ICP备17150951号</p>
@@ -45,9 +45,10 @@
     text-align: center;
     background: #131313;
     .img{
+      cursor: pointer;
       padding-top: 34px;
       img{
-        width: 38px;
+        width: 52px;
         height: 52px;
         object-fit: cover;
       }

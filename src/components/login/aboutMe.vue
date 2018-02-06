@@ -1,6 +1,5 @@
 <template>
   <div class="aboutMe">
-    <Top></Top>
     <!-- :num="0" -->
     <Navs ></Navs>
     <div class="mainBox">
@@ -34,7 +33,6 @@
         </div>
       </div>
     </div>
-    <Foot></Foot>
   </div>
 </template>
 <script type="javascript">

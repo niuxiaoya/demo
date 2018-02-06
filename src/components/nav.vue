@@ -2,7 +2,7 @@
   <div class="nav">
     <ul>
       <li v-for="(item,index) in dataList"  @click="open(item,index)" :class="{'topActive':num==index}">{{item.name}}</li>
-        <!--<i><img :src="userInfo.avatar_pic?userInfo.avatar_pic:require('../assets/img/people.png')"  ></i>-->
+      <!--<i><img :src="userInfo.avatar_pic?userInfo.avatar_pic:require('../assets/img/people.png')"  ></i>-->
       <li class="lis">
         <i v-if="!userInfo.uid">
           <img src='../assets/img/people.png' alt="" @click="openLogin" >
@@ -40,6 +40,7 @@
         select:0,
         userInfo:{},
         userId:'',
+        is_auth_name:'',
         dataList: [
           {
             name: '首页',
@@ -60,16 +61,23 @@
             name: '关于我们',
           },
         ],
+        ifBrandCard:[]
       }
+    },
+    created(){
+
     },
     methods: {
       open(item,index){
         switch (item.name){
           case '首页':
             this.$router.push('/')
+            sessionStorage.removeItem('buy-filter')
             break;
           case '直买':
             this.$router.push('/buy')
+//            this.$router.push(`/buy?p=1`)
+
             break;
           case '直售':
             if(!localStorage.getItem('Authorization')){
@@ -83,20 +91,67 @@
               });
               return false
             }
-            this.$router.push('/wealthmanag')
+            this.$http.get(`${process.env.API.USER}/user/userinfo?nonce=0.9954606018503807`).then(res=>{
+              this.is_auth_name=res.data.data.is_auth_name
+              if(this.is_auth_name!='已认证'){
+                this.$confirm('请认证后再进行操作！！', '提示', {
+                  confirmButtonText: '确定',
+                  cancelButtonText: '取消',
+                  type: 'warning'
+                }).then(() => {
+                  if(this.is_auth_name=='未认证'){
+                    this.$router.push('/login/name?id=1')
+                    return false
+                  }
+                  if(this.is_auth_name=='认证失败'){
+                    this.$router.push('/login/name?id=2')
+                    return false
+                  }
+                  else{
+                    this.$router.push('/login/nameSucess')
+                    return false
+                  }
+                }).catch(() => {
+                });
+              }else{
+                if(this.ifBrandCard.length<=0){
+                  this.$confirm('请先添加银行卡！', '提示', {
+                    confirmButtonText: '确定',
+                    cancelButtonText: '取消',
+                    type: 'warning'
+                  }).then(() => {
+                    this.$router.push(`/login/addBank`)
+                    return false
+                  }).catch(err => {
+                    console.log(err)
+                  });
+                  return false;
+                }else{
+                  this.$router.push('/wealthmanag')
+                  sessionStorage.removeItem('buy-filter')
+                }
+              }
+            }).catch(err=>{
+
+            })
+
             break;
           case '会籍':
             this.$router.push('/vip')
+            sessionStorage.removeItem('buy-filter')
             break;
           case '资讯':
-           this.$router.push('/information')
+            this.$router.push('/information')
+            sessionStorage.removeItem('buy-filter')
             break;
           case '关于我们':
-           this.$router.push('/about')
+            this.$router.push('/about')
+            sessionStorage.removeItem('buy-filter')
             break;
         }
       },
       openLogin(){
+        sessionStorage.removeItem('buy-filter')
         this.$router.push('/login')
       },
       exit(){
@@ -106,7 +161,7 @@
             self.$router.push('/')
             self.userInfo.uid = ''
             self.fn()
-//            window.reload()
+            window.reload()
           }else{
 
           }
@@ -116,18 +171,48 @@
         localStorage.removeItem('Authorization')
       },
       fn(){
-        this.$http.get(`${process.env.API.USER}/user/userinfo`).then(res=>{
+        this.$http.get(`${process.env.API.USER}/user/userinfo?nonce=0.9954606018503807`).then(res=>{
           if(res.data.errcode=='0'){
             this.userInfo = res.data.data
+
+            let isAuth = localStorage.getItem('isAuth')
+            if(res.data.data){
+              if((res.data.data&&res.data.data.is_auth==0)||(res.data.data&&res.data.data.is_auth==2)){
+                localStorage.setItem('isAuth',res.data.data.is_auth)
+                isAuth = localStorage.getItem('isAuth')
+              }
+            }
+            if((res.data.data&&res.data.data.is_auth==1)&&(isAuth==0||isAuth==2)){
+              this.$http.get(`${process.env.API.USER}/user/getauth`).then(res=>{
+                if(res.data.errcode=='0'){
+                  localStorage.setItem('Authorization',res.data.Authorization)
+                  localStorage.setItem('isAuth',1)
+                }
+              }).catch(err=>{
+                console.log(err)
+              })
+            }
+
+
           }
         }).catch(err=>{
           console.log(err)
         })
       }
     },
-    mounted(){
-      this.fn()
-
+    mounted() {
+      this.$http.get(`${process.env.API.USER}/user/bankcard`).then(res=>{
+        if(res.data.errcode=="0"){
+          this.ifBrandCard=res.data.data;
+        }
+      }).catch(err=>{
+        console.log(err)
+      })
+//      if (this.userInfo && !this.userInfo.uid) {
+        this.fn()
+//      } else {
+//
+//      }
     }
   }
 </script>
@@ -164,6 +249,7 @@
         /*position: absolute;*/
         /*right: -200px;*/
         /*top: 0;*/
+        width: 86px;
         display: flex;
         justify-content: center;
         align-items: center;
@@ -184,18 +270,17 @@
               object-fit: cover
             }
           }
-          /*.isShowLogin{*/
-            /*opacity: 0;*/
-          /*}*/
         }
         .info{
           position: relative;
           .isShow{
+            z-index: 0;
             opacity: 0;
             transition: all .4s;
           }
           .isShowLogin{
             opacity: 1;
+            z-index: 22;
           }
           .icon-caret {
             width:14px;
@@ -240,9 +325,6 @@
                 border-bottom: none;
               }
               img{
-                /*width:25px!important;*/
-                /*height: 25px!important;*/
-                /*border-radius: 50%!important;*/
                 margin-right: 10px;
               }
               &:hover{

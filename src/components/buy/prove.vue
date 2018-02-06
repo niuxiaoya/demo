@@ -1,6 +1,5 @@
 <template>
   <div class="prove">
-    <Top></Top>
     <Navs :num="1"></Navs>
     <div class="mian">
       <div class="title titles">
@@ -41,9 +40,9 @@
           转入账户信息
         </div>
         <ul class="infosT">
-          <li>开户名称：<span>深圳瑞时会网络有限公司</span></li>
-          <li>账      号：<span>4000 1042 0910 0180 213</span></li>
-          <li>开户银行：<span>中国工商银行股份有限公司深圳岗厦支行</span></li>
+          <li>开户名称：<span>{{information.name}}</span></li>
+          <li>账      号：<span>{{information.number}}</span></li>
+          <li>开户银行：<span>{{information.bank}}</span></li>
         </ul>
       </div>
       <div class="tit">
@@ -61,6 +60,7 @@
             <li v-if="imgList.length<10">
               <el-upload
                 class="avatar-uploader"
+                :headers="header"
                 :action="uploadUrl"
                 :show-file-list="false"
                 :on-success="handleAvatarSuccess"
@@ -74,17 +74,19 @@
       </div>
       <div class="btns">
         <div class="sub">
-          <span @click="sub">提交</span>
+          <span @click="sub" v-if="$route.query.fineness_id!=8">提交</span>
         </div>
       </div>
     </div>
-    <Foot></Foot>
   </div>
 </template>
 <script type="javascript">
   export default {
     data(){
       return {
+        header: {
+          Authorization: localStorage.getItem('Authorization')
+        },
         uploadUrl:`${process.env.API.USER}/user/upload`,
         imageUrl:require('../../assets/img/zhuanz.png'),
         imgHead:`${process.env.API.USER}/user/upload`,
@@ -106,7 +108,8 @@
           file_id:[]
         },
         imgList:[
-        ]
+        ],
+        information:''
       }
     },
     created(){
@@ -114,28 +117,12 @@
       this.postData.delivery_method=this.$route.query.defult
     },
     methods:{
-      //删除地址
-      delShow(item,index){
-        let self = this
-         self.$http.delete(`${process.env.API.USER}/user/address`,{
-            params: {
-              id:item.gid
-            }
-          }).then(res => {
-            if(parseInt(res.data.errcode)===0){
-              self.default_active=0;
-              self.dataInfo.splice(index, 1)
-            }
-          }).catch(err => {
-            console.log(err)
-          })
-      },
       handleAvatarSuccess(res, file) {
         if(res.errcode=='0'){
           this.postData.file_id.push(res.fileinfo.fid)
           this.imgList.push(URL.createObjectURL(file.raw))
         }else{
-          this.$toast(res.errmsg)
+          this.$message.error(res.errmsg)
         }
       },
       beforeAvatarUpload(file) {
@@ -167,38 +154,22 @@
            this.$message.error("请提交转账证明");
           return false
         }else{
-          self.$http.post(`${process.env.API.MARKET}/market/buyer/ordercertifypay`,{
+          self.$http.post(`${process.env.API.MARKET}/v2/market/buyer/ordercertifypay`,{
             bank_id:self.datas.id,
             file_id:self.postData.file_id,
             id: this.$route.query.id
           }).then(res=>{
-            this.$message({
-              type: 'success',//success
-              message: "提交成功"
-            });
-            self.$router.push(`/login/myBuy?id=2`)
+            if(res.data.errcode=="0") {
+              this.$message({
+                type: 'success',//success
+                message: "提交成功"
+              });
+              self.$router.push(`/login/myBuy?id=2`)
+            }
           }).catch(err=>{
             this.$message.error("提交失败");
           })
         }
-      },
-      //删除
-      cencelPid(){
-        let self=this;
-        self.$http.put(`${process.env.API.MARKET}/market/buyer/order?id=${self.$route.query.id}`).then(res=>{
-            if(res.data.errcode=="0"){
-              this.$message({
-                type: 'success',
-                message: "删除成功"
-              });
-              self.$router.push("/buy")
-            }
-            else{
-              this.$message.error("删除失败");
-            }
-        }).catch(err=>{
-          this.$message.error("删除失败");
-        })
       },
     },
     mounted() {
@@ -208,7 +179,7 @@
       /**
        * 商品信息
        */
-      self.$http.get(`${process.env.API.MARKET}/market/buyer/orderplace`,{
+      self.$http.get(`${process.env.API.MARKET}/v2/market/buyer/orderplace`,{
         params:{
           gid:this.$route.query.gid,
 
@@ -222,6 +193,16 @@
 
       })
 
+      /**
+       * //转入帐户信息
+       */
+      self.$http.get(`${process.env.API.DICT}/dict/account`).then(res=>{
+        if(parseInt(res.data.errcode)==0){
+          self.information=res.data.data[0]
+        }
+      }).catch(error=>{
+
+      })
 
     },
   }

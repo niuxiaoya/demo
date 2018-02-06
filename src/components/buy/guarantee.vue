@@ -1,29 +1,32 @@
 <template>
-  <div class="Detail">
-    <Navs :num="4"></Navs>
+  <div class="Guarantee">
+    <Navs :num="1"></Navs>
     <div class="mian">
       <div class="title">
         <div class="matter">当前位置 :
-          <span class="moshover" @click="$router.push('/information')">资讯</span> >
-          <span class="text">正文</span>
+          <span class="moshover" @click="tzbuyDetail">直买</span> >
+          <span class="text">买家保障</span>
         </div>
 
       </div>
       <div class="content content_img">
-        <div class="title-top">
-          <h2>{{dataList.title}}</h2>
-          <p class="times"><span>{{dataList.author}}</span><span>{{dataList.publish_time}}</span></p>
-        </div>
+        <!--<div class="title-top">-->
+          <!--<h2>{{dataList.title}}</h2>-->
+          <!--<p class="times"><span>{{dataList.author}}</span><span>{{dataList.publish_time}}</span></p>-->
+        <!--</div>-->
         <div class="content-text">
           <div class="texts" >
-            <p v-html="dataList.content"></p>
+            <p v-html="this.$route.params.item"></p>
+            <div v-if="!this.$route.params.item">
+              <no-more></no-more>
+            </div>
           </div>
         </div>
 
       </div>
-      <div class="page">
+      <!--<div class="page">-->
 
-      </div>
+      <!--</div>-->
     </div>
   </div>
 </template>
@@ -36,30 +39,20 @@
       }
     },
     mounted() {
-      document.title= '瑞时会-资讯'
+      document.title= '瑞时会-直买'
       window.scrollTo(0,0)
         let self=this;
-//
-        this.$http.get(`${process.env.API.NEWS}/news/articledetail`,{params:{
-          article_id:this.$route.query.id
-        }}).then(res=>{
-           if(parseInt(res.data.errcode)==0){
-//            res.data.manage.file_pic=res.data.manage.file_pic.split(",")
-
-
-            res.data.manage.detail.publish_time=new Date(res.data.manage.detail.publish_time * 1000).toLocaleDateString('zh-cn').replace(/\//g, '-')
-            this.dataList=res.data.manage.detail
-
-          }
-        }).catch(() => {
-
-        })
 
     },
+    methods:{
+      tzbuyDetail(){
+        this.$router.push(`/buy/detail?id=${this.$route.params.id}`)
+      }
+    }
   }
 </script>
 <style type="text/less" lang="less" scoped>
-  .Detail{
+  .Guarantee{
     .mian{
       max-width: 1200px;
       min-width: 1000px;
@@ -117,16 +110,16 @@
             }
 
           }
-          /*.imgs{*/
-            /*position: absolute;*/
-            /*top: 5px;*/
-            /*right: 10px;*/
-            /*width: 20px;*/
-            /*height: 20px;*/
-            /*img{*/
-               /*width: 100%;*/
-             /*}*/
-          /*}*/
+          .imgs{
+            position: absolute;
+            top: 5px;
+            right: 10px;
+            width: 20px;
+            height: 20px;
+            img{
+              width: 100%;
+            }
+          }
         }
       }
       .content{
@@ -189,10 +182,9 @@
   }
 </style>
 <style type="text/less" lang="less">
-  .content_img{
-    img{
+  #my-frame-text{
+    img {
       max-width: 100%;
-      height:auto;
     }
   }
 </style>

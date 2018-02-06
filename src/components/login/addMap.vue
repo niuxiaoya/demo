@@ -1,6 +1,5 @@
 <template>
   <div class="addMap">
-    <Top></Top>
     <!-- :num="0" -->
     <Navs ></Navs>
     <div class="mainBox">
@@ -65,7 +64,6 @@
         </div>
       </div>
     </div>
-    <Foot></Foot>
   </div>
 </template>
 <script type="javascript">
@@ -127,9 +125,22 @@
           this.$message.error("请正确填写您的电话");
           return false
         }
-        if(!self.infoList.she ||!self.infoList.city ||!self.infoList.qu){
-          this.$message.error("请填写您的收货地址");
+//        if(!self.infoList.she ||!self.infoList.city ||!self.infoList.qu){
+//          this.$message.error("请填写您的收货地址");
+//          return false;
+//        }
+        if(!self.infoList.she){
+          this.$message.error("请填写您的所在地");
           return false;
+        }
+        if(self.infoList.she){
+          if(self.infoList.she=='香港特别行政区' || self.infoList.she=='澳门特别行政区' || self.infoList.she=='台湾省'){
+            self.dist_code=''
+            self.city_code=''
+          }else if(!self.infoList.city ||!self.infoList.qu){
+            this.$message.error("请填写您的收货地址");
+            return false;
+          }
         }
         if(!self.infoList.map){
           this.$message.error("请填写您的详细地址");
@@ -139,18 +150,16 @@
 //          this.$message.error("请设为默认");
 //          return false;
 //        }
-        console.log(this.$route.params.city_code)
         if(this.$route.params.city_code!=undefined){
-          console.log(this.$route.params)
           self.$http.put(`${process.env.API.USER}/user/address`,{
             address: self.infoList.map,
-            city_code: this.$route.params.city_code,
-            dist_code: this.$route.params.dist_code,
-            prov_code: this.$route.params.prov_code,
+            city_code: self.city_code,
+            dist_code: self.dist_code,
+            prov_code: self.prov_code,
             is_default:this.$route.params.is_default,
-            receiver: this.$route.params.receiver,
-            receiver_tel: this.$route.params.receiver_tel,
-            id: this.$route.params.id
+            receiver: self.infoList.name,
+            receiver_tel: self.infoList.tel,
+            id:this.$route.params.id
           }).then(res => {
             if(res.data.errcode=='0'){
               this.$message({

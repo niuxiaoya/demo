@@ -1,26 +1,25 @@
 <template>
   <div class="VIP">
-      <Top></Top>
       <Navs :num="3"></Navs>
       <div class="mian" v-loading="loading" element-loading-text="加载中" >
           <div class="content" v-show="vipInfo.length > 0" style="min-height: 400px;">
           <dl  v-for="item,index in vipInfo" :key="index">
-            <dt @click="info(index)">
+            <dt @click="$router.push(`vip/detail?code=${item.code}`)">
               <img :src="item.icon_pic" alt="">
             </dt>
             <dd>
               <div class="detail">
                 <p>{{item.name}} </p>
-                <b @click="$router.push('vip/detail')">详情</b>
+                <b @click="$router.push(`vip/detail?code=${item.code}`)">详情</b>
               </div>
               <p>{{item.money}}</p>
-              <span class="es" v-html="item.description"> </span>
-              <span>{{item.remark}}</span>
+              <!--<span class="es" v-html="item.description"> </span>-->
+              <span v-html="item.remark" ></span>
+              <!--{{item.remark}}-->
             </dd>
           </dl>
         </div>
       </div>
-      <Foot></Foot>
   </div>
 </template>
 <script type="javascript">
@@ -32,11 +31,11 @@
      }
    },
    methods:{
-     info(resut){
-       this.$router.push({
-           path:'/vip/detail',
-       })
-     },
+//     info(resut){
+//       this.$router.push({
+//           path:'/vip/detail',
+//       })
+//     },
    },
     mounted(){
       document.title= '瑞时会-会籍'
@@ -51,8 +50,8 @@
            let str1;
            let arr=[];
            self.vipInfo = res.data.data.data
-           self.loading = false
          }
+         self.loading = false
        }).catch(err=>{
          self.loading = false
        })
@@ -131,10 +130,10 @@
               text-align: center;
               padding-top: 16px;
               color: #606060;
-              height: 20px;
-              overflow: hidden;
-              text-overflow: ellipsis;
-              display: -webkit-box;
+              /*height: 25px;*/
+              /*overflow: hidden;*/
+              /*text-overflow: ellipsis;*/
+              /*display: -webkit-box;*/
               -webkit-line-clamp: 1;
               -webkit-box-orient: vertical;
               &:first-child{

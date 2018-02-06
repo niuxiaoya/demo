@@ -1,6 +1,5 @@
 <template>
   <div class="People">
-    <Top></Top>
     <!-- :num="0" -->
     <Navs ></Navs>
     <div class="mainBox">
@@ -9,7 +8,8 @@
       </div>
       <div class="right">
         <div class="title">
-          <img :src="dataList.avatar_pic" alt="">
+          <!--<img :src="dataList.avatar_pic" alt="">-->
+          <img :src="dataList.avatar_pic?dataList.avatar_pic:require('../../assets/img/login/photo.png')"  alt="">
           <div>
             <p> {{dataList.username?dataList.username:dataList.tel}}</p>
             <p><img v-show="dataList.is_auth_name=='已认证'" src="../../assets/img/login/name.png" alt="">{{dataList.is_auth_name}}</p>
@@ -67,7 +67,6 @@
         </ul>
       </div>
     </div>
-    <Foot></Foot>
   </div>
 </template>
 <script type="javascript">

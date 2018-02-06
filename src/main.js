@@ -14,6 +14,7 @@ import '@/assets/css/threesixty.css'
 import Moment from 'moment'
 import IdcmComponent from '@/components/index'
 import $ from 'jquery'
+import animate from 'animate.css'
 
 Vue.use(IdcmComponent)
 
@@ -22,6 +23,18 @@ Vue.use(ElementUI)
 Vue.prototype.$http = Axios
 
 Vue.prototype.$moment = Moment
+
+//设置全局钩子
+// router.beforeEach((to, from, next) => {
+//   gtag('config', 'UA-112072640-1', {
+//     // 'page_title': 'homepage',
+//     // 'page_location': 'http://foo.com/home',
+//     'page_path': `/#${to.path}`
+//   });
+//   _hmt.push(['_trackPageview', `/#${to.path}`]);
+//   // console.log(to.path)
+//   next()
+// })
 
 
 // Vue.filter('currency', function(value) {
